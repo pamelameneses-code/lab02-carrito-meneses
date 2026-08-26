@@ -29,9 +29,6 @@ class ProductoAccesorio(nombre: String, precioBase: Double, cantidad: Int) :
     override fun categoria(): String = "Accesorio"
 }
 
-// ============================================
-// NUEVA FUNCION: genera una factura con los productos seleccionados
-// ============================================
 fun generarFactura(cliente: String, seleccionados: List<Producto>) {
     println("\n==========================================")
     println("              FACTURA DE VENTA")
@@ -51,10 +48,17 @@ fun generarFactura(cliente: String, seleccionados: List<Producto>) {
     println("==========================================")
 }
 
+// ============================================
+// NUEVA FUNCION: elimina un producto del carrito por nombre
+// ============================================
+fun eliminarProducto(carrito: MutableList<Producto>, nombre: String): Boolean {
+    return carrito.removeIf { it.nombre.equals(nombre, ignoreCase = true) }
+}
+
 fun main() {
     val cliente = "Pamela Meneses"
 
-    val carrito: List<Producto> = listOf(
+    val carrito = mutableListOf<Producto>(
         ProductoElectronico("Laptop HP", 2500.0, 1),
         ProductoAccesorio("Mouse Logitech", 45.5, 2),
         ProductoAccesorio("Teclado Mecanico", 120.0, 1),
@@ -77,30 +81,3 @@ fun main() {
     val total = subtotal
 
     println("Cantidad de productos: $cantidadProductos\n")
-    println("Subtotal:         S/ ${"%8.2f".format(subtotal)}")
-    println("TOTAL A PAGAR:    S/ ${"%8.2f".format(total)}")
-
-    val productoMasCaro = carrito.maxByOrNull { it.calcularPrecioUnitario() }
-    productoMasCaro?.let {
-        println("\nProducto mas caro: ${it.nombre} (S/ ${"%.2f".format(it.calcularPrecioUnitario())})")
-    }
-
-    val porcentajeDescuento = if (total > 3000.0) 0.10 else 0.05
-    val descuento = total * porcentajeDescuento
-    val totalConDescuento = total - descuento
-
-    println("Descuento aplicado (${(porcentajeDescuento * 100).toInt()}%): S/ ${"%8.2f".format(descuento)}")
-    println("TOTAL CON DESCUENTO: S/ ${"%8.2f".format(totalConDescuento)}")
-
-    println("\n--------- BUSQUEDA INTELIGENTE ---------")
-    val busqueda = "Mouse Logitech"
-    val encontrado = carrito.find { it.nombre.equals(busqueda, ignoreCase = true) }
-    if (encontrado != null) {
-        println("Producto encontrado: ${encontrado.nombre} | Categoria: ${encontrado.categoria()} | Stock: ${encontrado.cantidad}")
-    } else {
-        println("Producto '$busqueda' no encontrado.")
-    }
-
-    val seleccionados = carrito.filter { it.categoria() == "Electronico" }
-    generarFactura(cliente, seleccionados)
-}
