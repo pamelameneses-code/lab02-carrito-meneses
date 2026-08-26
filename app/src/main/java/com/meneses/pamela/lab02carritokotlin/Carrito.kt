@@ -44,6 +44,11 @@ fun calcularDescuento(total: Double): Double {
     }
 }
 
+// Reto: Función para buscar producto con .find
+fun buscarProducto(productos: List<Producto>, nombre: String): Producto? {
+    return productos.find { it.nombre.equalsIgnoreCase(nombre) }
+}
+
 fun main() {
     println("=========================================")
     println("   CARRITO DE COMPRAS - TIENDA TECSUP    ")
@@ -56,6 +61,7 @@ fun main() {
     carrito.add(Producto("Mouse Logitech", 45.5, 2))
     carrito.add(Producto("Teclado Mecánico", 120.0, 1))
     carrito.add(Producto("Monitor 24 pulgadas", 650.0, 1))
+
     println("Cliente: $nombreCliente")
     println()
 
@@ -92,4 +98,11 @@ fun main() {
     } else {
         println("No se aplica descuento (total no supera S/ 3000)")
     }
+
+    // --- SE AGREGÓ ESTO AL FINAL ---
+    val productoBuscado = carrito.find { it.nombre == "Mouse Logitech" }
+    println("\nProducto encontrado con find: ${productoBuscado?.nombre}")
+
+    carrito.removeIf { it.nombre == "Mouse Logitech" }
+    println("Producto eliminado con removeIf. Quedan: ${carrito.size} productos.")
 }
