@@ -9,6 +9,10 @@ abstract class Producto(
     val precioBase: Double,
     val cantidad: Int
 ) {
+    init {
+        require(cantidad > 0) { "La cantidad debe ser mayor a cero" }
+    }
+
     // Método abstracto: cada subclase lo implementa a SU manera (POLIMORFISMO)
     abstract fun calcularPrecioUnitario(): Double
 
@@ -42,7 +46,6 @@ class ProductoAccesorio(nombre: String, precioBase: Double, cantidad: Int) :
 fun main() {
     val cliente = "Pamela Meneses"
 
-    // Lista de tipo Producto (superclase), con objetos de subclases distintas
     val carrito: List<Producto> = listOf(
         ProductoElectronico("Laptop HP", 2500.0, 1),
         ProductoAccesorio("Mouse Logitech", 45.5, 2),
@@ -57,8 +60,6 @@ fun main() {
 
     println("--------- DETALLE DEL CARRITO ---------")
     carrito.forEachIndexed { index, p ->
-        // POLIMORFISMO: cada producto calcula su subtotal a SU manera,
-        // aunque el bucle los trata a todos igual (como "Producto")
         println("${index + 1}. ${p.nombre.padEnd(20)} [${p.categoria()}] x${p.cantidad} S/ ${"%8.2f".format(p.calcularSubtotal())}")
     }
     println("----------------------------------------")
