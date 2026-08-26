@@ -1,9 +1,5 @@
 package com.meneses.pamela.lab02menesesconia
 
-// ============================================
-// CLASE BASE (SUPERCLASE) - abstracta
-// Define lo que TODO producto debe tener en común
-// ============================================
 abstract class Producto(
     val nombre: String,
     val precioBase: Double,
@@ -13,34 +9,46 @@ abstract class Producto(
         require(cantidad > 0) { "La cantidad debe ser mayor a cero" }
     }
 
-    // Método abstracto: cada subclase lo implementa a SU manera (POLIMORFISMO)
     abstract fun calcularPrecioUnitario(): Double
-
-    // Cada subclase también describe su propia categoría
     abstract fun categoria(): String
 
-    // Método normal, HEREDADO por todas las subclases sin repetirlo
     fun calcularSubtotal(): Double {
         return calcularPrecioUnitario() * cantidad
     }
 }
 
-// ============================================
-// HERENCIA: ProductoElectronico HEREDA de Producto
-// ============================================
 class ProductoElectronico(nombre: String, precioBase: Double, cantidad: Int) :
     Producto(nombre, precioBase, cantidad) {
     override fun calcularPrecioUnitario(): Double = precioBase * 1.18
     override fun categoria(): String = "Electronico"
 }
 
-// ============================================
-// HERENCIA: ProductoAccesorio HEREDA de Producto
-// ============================================
 class ProductoAccesorio(nombre: String, precioBase: Double, cantidad: Int) :
     Producto(nombre, precioBase, cantidad) {
     override fun calcularPrecioUnitario(): Double = precioBase
     override fun categoria(): String = "Accesorio"
+}
+
+// ============================================
+// NUEVA FUNCION: genera una factura con los productos seleccionados
+// ============================================
+fun generarFactura(cliente: String, seleccionados: List<Producto>) {
+    println("\n==========================================")
+    println("              FACTURA DE VENTA")
+    println("==========================================")
+    println("Cliente: $cliente")
+    println("------------------------------------------")
+
+    var totalFactura = 0.0
+    seleccionados.forEachIndexed { index, p ->
+        val subtotal = p.calcularSubtotal()
+        totalFactura += subtotal
+        println("${index + 1}. ${p.nombre.padEnd(20)} [${p.categoria()}] S/ ${"%8.2f".format(subtotal)}")
+    }
+
+    println("------------------------------------------")
+    println("TOTAL FACTURADO: S/ ${"%8.2f".format(totalFactura)}")
+    println("==========================================")
 }
 
 fun main() {
@@ -92,4 +100,7 @@ fun main() {
     } else {
         println("Producto '$busqueda' no encontrado.")
     }
+
+    val seleccionados = carrito.filter { it.categoria() == "Electronico" }
+    generarFactura(cliente, seleccionados)
 }
