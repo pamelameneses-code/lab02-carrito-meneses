@@ -22,3 +22,50 @@ fun obtenerTasaInteres(cuotas: Int): Double {
         else -> 0.0
     }
 }
+
+fun calcularInteres(montoInicial: Double, tasa: Double): Double {
+    return montoInicial * tasa
+}
+
+fun calcularMontoAPagar(montoInicial: Double, interes: Double): Double {
+    return montoInicial + interes
+}
+
+fun calcularPagoMensual(montoAPagar: Double, cuotas: Int): Double {
+    return montoAPagar / cuotas
+}
+
+fun main() {
+    println("=========================================")
+    println("   CALCULADORA DE CUOTAS - TIENDA TECSUP  ")
+    println("=========================================")
+
+    print("Ingrese nombre del producto: ")
+    val nombre = readLine() ?: ""
+    print("Ingrese precio: ")
+    val precio = readLine()?.toDoubleOrNull() ?: 0.0
+    print("Ingrese cantidad: ")
+    val cantidad = readLine()?.toIntOrNull() ?: 1
+
+    val producto = Producto(nombre, precio, cantidad)
+    val montoInicial = calcularMontoInicial(producto)
+
+    var cuotas: Int
+    do {
+        print("Ingrese N° de cuotas (6, 12 o 24): ")
+        cuotas = readLine()?.toIntOrNull() ?: 0
+        if (!validarCuotas(cuotas)) println("Cuotas inválidas. Solo 6, 12 o 24.")
+    } while (!validarCuotas(cuotas))
+
+    val tasa = obtenerTasaInteres(cuotas)
+    val interes = calcularInteres(montoInicial, tasa)
+    val montoAPagar = calcularMontoAPagar(montoInicial, interes)
+    val pagoMensual = calcularPagoMensual(montoAPagar, cuotas)
+
+    println()
+    println("Producto: ${producto.nombre}")
+    println(String.format("Monto inicial:   S/ %10.2f", montoInicial))
+    println(String.format("Interés (%.0f%%):    S/ %10.2f", tasa * 100, interes))
+    println(String.format("Monto a pagar:   S/ %10.2f", montoAPagar))
+    println(String.format("Pago mensual:    S/ %10.2f", pagoMensual))
+}
