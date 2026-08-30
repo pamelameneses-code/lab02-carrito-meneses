@@ -35,6 +35,27 @@ fun calcularPagoMensual(montoAPagar: Double, cuotas: Int): Double {
     return montoAPagar / cuotas
 }
 
+fun mostrarCronograma(montoAPagar: Double, pagoMensual: Double, cuotas: Int) {
+    println("--------- CRONOGRAMA DE PAGOS ---------")
+    println(String.format("%-4s %-12s %10s %10s %12s",
+        "N°", "Fecha", "Monto", "P.Mensual", "Resta Pago"))
+
+    var saldo = montoAPagar
+    var mes = 9
+    var anio = 2026
+
+    for (i in 1..cuotas) {
+        val montoAntes = saldo
+        saldo -= pagoMensual
+        mes++
+        if (mes > 12) { mes = 1; anio++ }
+        val fecha = String.format("26/%02d/%d", mes, anio)
+        println(String.format("%-4d %-12s %10.2f %10.2f %12.2f",
+            i, fecha, montoAntes, pagoMensual, saldo))
+    }
+    println("----------------------------------------")
+}
+
 fun main() {
     println("=========================================")
     println("   CALCULADORA DE CUOTAS - TIENDA TECSUP  ")
@@ -68,4 +89,6 @@ fun main() {
     println(String.format("Interés (%.0f%%):    S/ %10.2f", tasa * 100, interes))
     println(String.format("Monto a pagar:   S/ %10.2f", montoAPagar))
     println(String.format("Pago mensual:    S/ %10.2f", pagoMensual))
+
+    mostrarCronograma(montoAPagar, pagoMensual, cuotas)
 }
