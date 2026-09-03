@@ -1,5 +1,5 @@
 package com.meneses.pamela.lab03registroproducto
-
+ //Pamela Meneses Mayua
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
