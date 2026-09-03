@@ -28,18 +28,17 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun PantallaRegistro(modifier: Modifier = Modifier) {
-    // Declaración de variables de estado
     var nombre by remember { mutableStateOf("") }
     var precio by remember { mutableStateOf("") }
     var cantidad by remember { mutableStateOf("") }
     var mostrarResumen by remember { mutableStateOf(false) }
+    var mostrarError by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Encabezado
         Text(
             text = "Nuevo producto",
             style = MaterialTheme.typography.headlineSmall
@@ -52,7 +51,6 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Campo Nombre
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
@@ -62,7 +60,6 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Fila para Precio y Cantidad
         Row(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 value = precio,
@@ -79,20 +76,49 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Botón
-        Button(
-            onClick = { mostrarResumen = true },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("AGREGAR PRODUCTO")
-        }
-
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Card de resumen y confirmación
-        if (mostrarResumen) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = {
+                    if (nombre.isBlank() || precio.isBlank() || cantidad.isBlank()) {
+                        mostrarError = true
+                        mostrarResumen = false
+                    } else {
+                        mostrarError = false
+                        mostrarResumen = true
+                    }
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("AGREGAR PRODUCTO")
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            OutlinedButton(
+                onClick = {
+                    nombre = ""
+                    precio = ""
+                    cantidad = ""
+                    mostrarResumen = false
+                    mostrarError = false
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("LIMPIAR")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        if (mostrarError) {
+            Text(
+                text = "⚠ Completa todos los campos antes de agregar el producto",
+                color = Color(0xFFD32F2F),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        } else if (mostrarResumen) {
             val precioNum = precio.toDoubleOrNull() ?: 0.0
             val cantidadNum = cantidad.toIntOrNull() ?: 0
             val importe = precioNum * cantidadNum
@@ -105,13 +131,14 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = if (nombre.isBlank()) "Sin nombre" else nombre,
-                        style = MaterialTheme.typography.titleLarge
+                        text = nombre,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
                     )
-                    Text("Precio: S/" + String.format("%.2f", precioNum))
+                    Text("Precio: S/ " + String.format("%.2f", precioNum))
                     Text("Cantidad: $cantidadNum")
                     Text(
-                        text = "Importe total: S/" + String.format("%.2f", importe),
+                        text = "Importe total: S/ " + String.format("%.2f", importe),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -127,7 +154,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             )
         } else {
             Text(
-                text = "Completa el formulario para ver el resumen",
+                text = "📋 Completa el formulario para ver el resumen",
                 color = MaterialTheme.colorScheme.outline,
                 style = MaterialTheme.typography.bodyMedium
             )
