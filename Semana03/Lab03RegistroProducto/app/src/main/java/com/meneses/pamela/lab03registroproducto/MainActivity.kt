@@ -127,7 +127,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             )
         } else {
             Text(
-                text = "Aún no has registrado ningún producto",
+                text = "Completa el formulario para ver el resumen",
                 color = MaterialTheme.colorScheme.outline,
                 style = MaterialTheme.typography.bodyMedium
             )
