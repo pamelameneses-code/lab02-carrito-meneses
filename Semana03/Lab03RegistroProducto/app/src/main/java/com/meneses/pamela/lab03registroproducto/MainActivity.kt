@@ -1,5 +1,5 @@
 package com.meneses.pamela.lab03registroproducto
- //Pamela Meneses Mayua
+//Pamela Meneses Mayua
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -81,6 +81,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Button(
                 onClick = {
+                    // isBlank() detecta campos vacios o solo con espacios (mas estricto que isEmpty())
                     if (nombre.isBlank() || precio.isBlank() || cantidad.isBlank()) {
                         mostrarError = true
                         mostrarResumen = false
@@ -106,7 +107,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                 },
                 modifier = Modifier.weight(1f)
             ) {
-                Text("LIMPIAR")
+                Text("LIMPIAR FORMULARIO")
             }
         }
 
@@ -114,50 +115,4 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
 
         if (mostrarError) {
             Text(
-                text = "⚠ Completa todos los campos antes de agregar el producto",
-                color = Color(0xFFD32F2F),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        } else if (mostrarResumen) {
-            val precioNum = precio.toDoubleOrNull() ?: 0.0
-            val cantidadNum = cantidad.toIntOrNull() ?: 0
-            val importe = precioNum * cantidadNum
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = nombre,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text("Precio: S/ " + String.format("%.2f", precioNum))
-                    Text("Cantidad: $cantidadNum")
-                    Text(
-                        text = "Importe total: S/ " + String.format("%.2f", importe),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "✓ Producto registrado correctamente",
-                color = Color(0xFF2E7D32),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        } else {
-            Text(
-                text = "📋 Completa el formulario para ver el resumen",
-                color = MaterialTheme.colorScheme.outline,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
+                text = "⚠ Por favor completa todos
