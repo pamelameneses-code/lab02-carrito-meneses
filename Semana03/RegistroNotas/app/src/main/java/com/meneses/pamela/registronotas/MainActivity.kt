@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meneses.pamela.registronotas.ui.theme.RegistroNotasTheme
+import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,6 +86,48 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
     var redondearPromedio by remember { mutableStateOf(false) }
     var confirmado by remember { mutableStateOf(false) }
 
+    var calculado by remember { mutableStateOf(false) }
+    var promPonderado by remember { mutableDoubleStateOf(0.0) }
+    var promFinal by remember { mutableDoubleStateOf(0.0) }
+    var observacion by remember { mutableStateOf("") }
+    var colorChip by remember { mutableStateOf(Color.Gray) }
+
+    fun ejecutarCalculo() {
+        val ponderado = (nota1.toInt() * cursos[0].peso) +
+                (nota2.toInt() * cursos[1].peso) +
+                (nota3.toInt() * cursos[2].peso) +
+                (nota4.toInt() * cursos[3].peso)
+
+        promPonderado = ponderado.toDouble()
+
+        val pFinal = if (redondearPromedio) {
+            ponderado.roundToInt().toDouble()
+        } else {
+            ponderado.toDouble()
+        }
+        promFinal = pFinal
+
+        when {
+            pFinal >= 17.0 -> {
+                observacion = "EXCELENTE"
+                colorChip = Color(0xFF1B5E20)
+            }
+            pFinal >= 13.0 -> {
+                observacion = "APROBADO"
+                colorChip = Color(0xFF4CAF50)
+            }
+            pFinal >= 10.0 -> {
+                observacion = "EN RECUPERACIÓN"
+                colorChip = Color(0xFFFFB300)
+            }
+            else -> {
+                observacion = "DESAPROBADO"
+                colorChip = Color(0xFFE53935)
+            }
+        }
+        calculado = true
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -114,18 +157,22 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Notas del ciclo",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.fillMaxWidth()
             )
             Text(
                 text = "Desliza para asignar cada nota (0 a 20)",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
             )
 
             FilaCurso(curso = cursos[0], nota = nota1, onNotaChange = { nota1 = it })
@@ -164,19 +211,71 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { /* Pendiente para Etapa 4 */ },
+                onClick = { ejecutarCalculo() },
                 enabled = confirmado,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("CALCULAR PROMEDIO")
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (!calculado) {
+                Text(
+                    text = "Asigna las notas y confirma para calcular",
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            } else {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Promedio ponderado:  ${String.format("%.2f", promPonderado)}",
+                            fontSize = 16.sp
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Promedio final:  ${if (redondearPromedio) promFinal.toInt().toString() else String.format("%.2f", promFinal)}",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        if (redondearPromedio) {
+                            Text("(redondeado)", fontSize = 12.sp, color = Color.Gray)
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = colorChip.copy(alpha = 0.2f)
+                        ) {
+                            Text(
+                                text = observacion,
+                                color = colorChip,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "✓ Promedio calculado correctamente",
+                    color = Color(0xFF2E7D32),
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Asigna las notas y confirma para calcular",
-                color = Color.Gray,
-                style = MaterialTheme.typography.bodyMedium
+                text = "Desarrollado por: Pamela Meneses",
+                fontSize = 12.sp,
+                color = Color.Gray
             )
         }
     }
