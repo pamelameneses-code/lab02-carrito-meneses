@@ -82,6 +82,9 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
     var nota3 by remember { mutableStateOf(0f) }
     var nota4 by remember { mutableStateOf(0f) }
 
+    var redondearPromedio by remember { mutableStateOf(false) }
+    var confirmado by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -132,6 +135,49 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
             FilaCurso(curso = cursos[2], nota = nota3, onNotaChange = { nota3 = it })
             Spacer(modifier = Modifier.height(8.dp))
             FilaCurso(curso = cursos[3], nota = nota4, onNotaChange = { nota4 = it })
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Redondear promedio final")
+                Switch(
+                    checked = redondearPromedio,
+                    onCheckedChange = { redondearPromedio = it }
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = confirmado,
+                    onCheckedChange = { confirmado = it }
+                )
+                Text("Confirmo que las notas son correctas")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { /* Pendiente para Etapa 4 */ },
+                enabled = confirmado,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("CALCULAR PROMEDIO")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Asigna las notas y confirma para calcular",
+                color = Color.Gray,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
