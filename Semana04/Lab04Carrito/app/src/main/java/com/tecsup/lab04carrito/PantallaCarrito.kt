@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -35,7 +36,6 @@ fun PantallaCarrito() {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Formulario
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
@@ -87,14 +87,44 @@ fun PantallaCarrito() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Etapa 3: Lista desplegable con LazyColumn
+            // LazyColumn con la TarjetaProducto corregida
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.weight(1f)
             ) {
-                items(productos) { prod ->
-                    Text(text = "${prod.nombre} - S/ ${prod.precio} x ${prod.cantidad}")
+                items(productos) { producto ->
+                    TarjetaProducto(
+                        producto = producto,
+                        onEliminar = { productos.remove(producto) }
+                    )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "S/ ${producto.precio} x ${producto.cantidad} = S/ ${producto.precio * producto.cantidad}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            TextButton(onClick = onEliminar) {
+                Text("Eliminar", color = Color.Red)
             }
         }
     }
