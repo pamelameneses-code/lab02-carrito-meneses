@@ -21,10 +21,22 @@ fun PantallaCarrito() {
 
     val productos = remember { mutableStateListOf<Producto>() }
 
-    // Cálculos dinámicos de totales
-    val subtotal = productos.sumOf { it.precio * it.cantidad }
-    val igv = subtotal * 0.18
-    val total = subtotal + igv
+    // Estado para controlar el AlertDialog de confirmación de borrado
+    var productoAEliminar by remember { mutableStateOf<Producto?>(null) }
+
+    // Cálculos dinámicos con Descuento (Reto 2)
+    val subtotalBase = productos.sumOf { it.precio * it.cantidad }
+
+    // Descuento según reglas del Lab 02 usando `when`
+    val porcentajeDescuento = when {
+        subtotalBase > 5000 -> 0.10
+        subtotalBase > 3000 -> 0.05
+        else -> 0.0
+    }
+    val montoDescuento = subtotalBase * porcentajeDescuento
+    val subtotalConDescuento = subtotalBase - montoDescuento
+    val igv = subtotalConDescuento * 0.18
+    val total = subtotalConDescuento + igv
 
     Scaffold(
         topBar = {
@@ -42,7 +54,7 @@ fun PantallaCarrito() {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Formulario de ingreso
+            // Formulario
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
@@ -94,7 +106,7 @@ fun PantallaCarrito() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Estado Vacío con Box o Lista de Productos
+            // Lista o Estado Vacío
             if (productos.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -116,7 +128,7 @@ fun PantallaCarrito() {
                     items(productos) { producto ->
                         TarjetaProducto(
                             producto = producto,
-                            onEliminar = { productos.remove(producto) }
+                            onEliminar = { productoAEliminar = producto }
                         )
                     }
                 }
@@ -135,8 +147,26 @@ fun PantallaCarrito() {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Subtotal:")
-                        Text("S/ ${String.format("%.2f", subtotal)}")
+                        Text("S/ ${String.format("%.2f", subtotalBase)}")
                     }
+
+                    // Se muestra solo si aplica descuento (Reto 2)
+                    if (montoDescuento > 0) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Descuento (${(porcentajeDescuento * 100).toInt()}%):",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Text(
+                                text = "- S/ ${String.format("%.2f", montoDescuento)}",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -144,7 +174,9 @@ fun PantallaCarrito() {
                         Text("IGV (18%):")
                         Text("S/ ${String.format("%.2f", igv)}")
                     }
+
                     Divider(modifier = Modifier.padding(vertical = 8.dp))
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -159,6 +191,30 @@ fun PantallaCarrito() {
                 }
             }
         }
+    }
+
+    // Reto 1: AlertDialog de Confirmación de Borrado
+    productoAEliminar?.let { prod ->
+        AlertDialog(
+            onDismissRequest = { productoAEliminar = null },
+            title = { Text("¿Eliminar este producto?") },
+            text = { Text("¿Estás seguro de que deseas eliminar \"${prod.nombre}\" del carrito?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        productos.remove(prod)
+                        productoAEliminar = null
+                    }
+                ) {
+                    Text("Eliminar", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { productoAEliminar = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 
