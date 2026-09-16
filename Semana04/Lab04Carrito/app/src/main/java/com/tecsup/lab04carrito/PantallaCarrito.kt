@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -19,6 +20,11 @@ fun PantallaCarrito() {
     var cantidad by remember { mutableStateOf("") }
 
     val productos = remember { mutableStateListOf<Producto>() }
+
+    // Cálculos dinámicos de totales
+    val subtotal = productos.sumOf { it.precio * it.cantidad }
+    val igv = subtotal * 0.18
+    val total = subtotal + igv
 
     Scaffold(
         topBar = {
@@ -36,6 +42,7 @@ fun PantallaCarrito() {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
+            // Formulario de ingreso
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
@@ -87,16 +94,68 @@ fun PantallaCarrito() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // LazyColumn con la TarjetaProducto corregida
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                items(productos) { producto ->
-                    TarjetaProducto(
-                        producto = producto,
-                        onEliminar = { productos.remove(producto) }
+            // Estado Vacío con Box o Lista de Productos
+            if (productos.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "El carrito está vacío",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Gray
                     )
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(productos) { producto ->
+                        TarjetaProducto(
+                            producto = producto,
+                            onEliminar = { productos.remove(producto) }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Panel de Totales
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Subtotal:")
+                        Text("S/ ${String.format("%.2f", subtotal)}")
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("IGV (18%):")
+                        Text("S/ ${String.format("%.2f", igv)}")
+                    }
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Total:", fontWeight = FontWeight.Bold)
+                        Text(
+                            "S/ ${String.format("%.2f", total)}",
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
         }
@@ -119,7 +178,7 @@ fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
             Column {
                 Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    text = "S/ ${producto.precio} x ${producto.cantidad} = S/ ${producto.precio * producto.cantidad}",
+                    text = "S/ ${producto.precio} x ${producto.cantidad} = S/ ${String.format("%.2f", producto.precio * producto.cantidad)}",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
