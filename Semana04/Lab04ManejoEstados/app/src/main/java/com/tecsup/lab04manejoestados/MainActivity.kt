@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.tecsup.lab04manejoestados.ui.theme.Lab04ManejoEstadosTheme
 
@@ -39,7 +40,14 @@ fun TemperatureDisplay(modifier: Modifier = Modifier) {
     var temperatura by remember { mutableStateOf(20) }
 
     Column(modifier = modifier) {
-        Text(text = "Temperatura: $temperatura°")
+        Text(
+            text = "Temperatura: $temperatura°",
+            color = when {
+                temperatura > 30 -> Color.Red
+                temperatura < 10 -> Color.Blue
+                else -> Color.Black
+            }
+        )
         Row {
             Button(onClick = { temperatura++ }) {
                 Text("Subir")
