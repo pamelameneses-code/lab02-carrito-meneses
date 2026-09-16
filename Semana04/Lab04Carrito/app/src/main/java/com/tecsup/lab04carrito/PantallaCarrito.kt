@@ -1,6 +1,8 @@
 package com.tecsup.lab04carrito
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,6 +35,7 @@ fun PantallaCarrito() {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
+            // Formulario
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
@@ -84,10 +87,15 @@ fun PantallaCarrito() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = "Productos: ${productos.size}",
-                style = MaterialTheme.typography.titleMedium
-            )
+            // Etapa 3: Lista desplegable con LazyColumn
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(productos) { prod ->
+                    Text(text = "${prod.nombre} - S/ ${prod.precio} x ${prod.cantidad}")
+                }
+            }
         }
     }
 }
