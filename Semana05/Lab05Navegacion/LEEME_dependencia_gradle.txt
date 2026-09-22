@@ -1,8 +1,0 @@
-Agrega esta línea dentro del bloque dependencies { } de tu archivo
-build.gradle.kts (Module :app) — es la única línea nueva que necesitas:
-
-    implementation("androidx.navigation:navigation-compose:2.7.7")
-
-Después de guardar el archivo, haz clic en "Sync Now" en el banner amarillo.
-Sin el sync, las clases de navegación (NavHost, composable, rememberNavController, etc.)
-no van a estar disponibles y el proyecto no compilará.
