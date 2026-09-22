@@ -43,9 +43,7 @@ fun ListScreen(navController: NavController) {
                     headlineContent = { Text(items[index]) },
                     supportingContent = { Text("Toca para ver el detalle") },
                     modifier = Modifier.clickable {
-                        navController.navigate(
-                            Screen.Detail.createRoute(index + 1)
-                        )
+                        navController.navigate(Screen.Detail.createRoute(index + 1))
                     }
                 )
                 HorizontalDivider()

@@ -32,7 +32,6 @@ fun ProfileScreen(navController: NavController) {
         Button(
             onClick = {
                 navController.navigate(Screen.Home.route) {
-                    // Limpia el back stack — evita apilar Homes
                     popUpTo(Screen.Home.route) { inclusive = true }
                 }
             },
