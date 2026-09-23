@@ -1,79 +1,52 @@
 package com.example.clinicasaludplus.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.clinicasaludplus.navigation.Screen
+import com.example.clinicasaludplus.ui.theme.DarkText
+import com.example.clinicasaludplus.ui.theme.MedicalBlue
+import com.example.clinicasaludplus.ui.theme.MedicalLightBlue
+import com.example.clinicasaludplus.ui.theme.PureWhite
 
-// Componente para la barra superior reutilizable con botón de menú
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(
-    title: String,
-    onMenuClick: () -> Unit
-) {
-    TopAppBar(
-        title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onMenuClick) {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Abrir Menú",
-                    tint = Color.White
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xFF4A148C) // Color morado principal
-        )
-    )
-}
-
-// Estructura del contenido interno del Menú Lateral (Drawer)
-@Composable
-fun DrawerContent(
+fun MainDrawerContent(
     currentRoute: String,
-    onDestinationClicked: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    onCloseDrawer: () -> Unit
 ) {
-    ModalDrawerSheet {
-        // Cabecera del usuario en el Drawer
+    ModalDrawerSheet(
+        drawerContainerColor = PureWhite
+    ) {
+        // Cabecera del Usuario
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(MedicalBlue)
                 .padding(24.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     modifier = Modifier.size(48.dp),
                     shape = MaterialTheme.shapes.small,
-                    color = Color(0xFFEDE7F6)
+                    color = PureWhite
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = "JP",
+                            color = MedicalBlue,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4A148C)
+                            style = MaterialTheme.typography.titleMedium
                         )
                     }
                 }
@@ -81,67 +54,69 @@ fun DrawerContent(
                 Column {
                     Text(
                         text = "Juan Pérez",
+                        color = PureWhite,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
+                        style = MaterialTheme.typography.titleMedium
                     )
                     Text(
                         text = "Paciente",
-                        color = Color.Gray,
-                        fontSize = 14.sp
+                        color = MedicalLightBlue,
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             }
         }
 
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Opciones del Menú Lateral
-        DrawerItem(
-            label = "Inicio",
-            icon = Icons.Default.Home,
+        // Opciones del Menú
+
+        // 1. Inicio
+        NavigationDrawerItem(
+            label = { Text("Inicio", color = DarkText) },
             selected = currentRoute == Screen.Home.route,
-            onClick = { onDestinationClicked(Screen.Home.route) }
+            onClick = {
+                onCloseDrawer()
+                onNavigate(Screen.Home.route)
+            },
+            icon = { Icon(Icons.Default.Home, contentDescription = null, tint = MedicalBlue) },
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
         )
-        DrawerItem(
-            label = "Mis citas",
-            icon = Icons.Default.DateRange,
+
+        // 2. Mis Citas
+        NavigationDrawerItem(
+            label = { Text("Mis citas", color = DarkText) },
             selected = currentRoute == Screen.MyAppointments.route,
-            onClick = { onDestinationClicked(Screen.MyAppointments.route) }
+            onClick = {
+                onCloseDrawer()
+                onNavigate(Screen.MyAppointments.route)
+            },
+            icon = { Icon(Icons.Default.CalendarToday, contentDescription = null, tint = MedicalBlue) },
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
         )
-        DrawerItem(
-            label = "Historial médico",
-            icon = Icons.Default.History,
+
+        // 3. Historial Médico (Navega a MedicalHistory)
+        NavigationDrawerItem(
+            label = { Text("Historial médico", color = DarkText) },
             selected = currentRoute == Screen.MedicalHistory.route,
-            onClick = { onDestinationClicked(Screen.MedicalHistory.route) }
+            onClick = {
+                onCloseDrawer()
+                onNavigate(Screen.MedicalHistory.route)
+            },
+            icon = { Icon(Icons.Default.History, contentDescription = null, tint = MedicalBlue) },
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
         )
-        DrawerItem(
-            label = "Perfil",
-            icon = Icons.Default.Person,
+
+        // 4. Perfil (Navega a Profile)
+        NavigationDrawerItem(
+            label = { Text("Perfil", color = DarkText) },
             selected = currentRoute == Screen.Profile.route,
-            onClick = { onDestinationClicked(Screen.Profile.route) }
+            onClick = {
+                onCloseDrawer()
+                onNavigate(Screen.Profile.route)
+            },
+            icon = { Icon(Icons.Default.Person, contentDescription = null, tint = MedicalBlue) },
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
         )
     }
-}
-
-// Componente para cada botón individual dentro del Drawer
-@Composable
-private fun DrawerItem(
-    label: String,
-    icon: ImageVector,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    NavigationDrawerItem(
-        label = { Text(text = label, fontWeight = FontWeight.Medium) },
-        icon = { Icon(imageVector = icon, contentDescription = label) },
-        selected = selected,
-        onClick = onClick,
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-        colors = NavigationDrawerItemDefaults.colors(
-            selectedContainerColor = Color(0xFFF3E8FF),
-            selectedIconColor = Color(0xFF4A148C),
-            selectedTextColor = Color(0xFF4A148C)
-        )
-    )
 }
