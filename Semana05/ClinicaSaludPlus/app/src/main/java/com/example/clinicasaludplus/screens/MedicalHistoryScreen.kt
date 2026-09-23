@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,7 +24,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyAppointmentsScreen(
+fun MedicalHistoryScreen(
     currentRoute: String,
     onNavigateToDestination: (String) -> Unit
 ) {
@@ -35,12 +36,8 @@ fun MyAppointmentsScreen(
         drawerContent = {
             MainDrawerContent(
                 currentRoute = currentRoute,
-                onNavigate = { route ->
-                    onNavigateToDestination(route)
-                },
-                onCloseDrawer = {
-                    scope.launch { drawerState.close() }
-                }
+                onNavigate = { route -> onNavigateToDestination(route) },
+                onCloseDrawer = { scope.launch { drawerState.close() } }
             )
         }
     ) {
@@ -49,7 +46,7 @@ fun MyAppointmentsScreen(
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            text = "Mis Citas",
+                            text = "Historial Médico",
                             color = PureWhite,
                             fontWeight = FontWeight.Bold
                         )
@@ -76,7 +73,7 @@ fun MyAppointmentsScreen(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Próximas Citas Médicas",
+                    text = "Consultas Anteriores",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MedicalBlue
@@ -84,12 +81,11 @@ fun MyAppointmentsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Muestra la lista de doctores con los que se agendó cita
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(MockData.doctors.take(2)) { doctor ->
+                    items(MockData.doctors.take(3)) { doctor ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
@@ -100,12 +96,24 @@ fun MyAppointmentsScreen(
                                     .padding(16.dp)
                                     .fillMaxWidth()
                             ) {
-                                Text(
-                                    text = doctor.name,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = DarkText
-                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = doctor.name,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = DarkText
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.CheckCircle,
+                                        contentDescription = "Atendido",
+                                        tint = MedicalTurquoise,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                                 Text(
                                     text = doctor.specialty,
                                     color = MedicalTurquoise,
@@ -120,21 +128,17 @@ fun MyAppointmentsScreen(
                                     color = MedicalLightBlue,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Row(
-                                        modifier = Modifier.padding(8.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
+                                    Column(modifier = Modifier.padding(8.dp)) {
                                         Text(
-                                            text = "Fecha: Jue 26",
+                                            text = "Fecha: 10 de Agosto, 2026",
                                             fontSize = 13.sp,
                                             color = DarkText,
                                             fontWeight = FontWeight.Medium
                                         )
                                         Text(
-                                            text = "Hora: 09:00 AM",
-                                            fontSize = 13.sp,
-                                            color = DarkText,
-                                            fontWeight = FontWeight.Medium
+                                            text = "Diagnóstico: Chequeo preventivo de rutina.",
+                                            fontSize = 12.sp,
+                                            color = DarkText.copy(alpha = 0.8f)
                                         )
                                     }
                                 }

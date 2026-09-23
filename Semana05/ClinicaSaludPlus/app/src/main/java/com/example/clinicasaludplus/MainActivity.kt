@@ -13,7 +13,9 @@ import com.example.clinicasaludplus.navigation.Screen
 import com.example.clinicasaludplus.screens.ConfirmationScreen
 import com.example.clinicasaludplus.screens.DoctorDetailScreen
 import com.example.clinicasaludplus.screens.HomeScreen
+import com.example.clinicasaludplus.screens.MedicalHistoryScreen
 import com.example.clinicasaludplus.screens.MyAppointmentsScreen
+import com.example.clinicasaludplus.screens.ProfileScreen
 import com.example.clinicasaludplus.screens.ScheduleScreen
 import com.example.clinicasaludplus.ui.theme.ClinicaSaludPlusTheme
 
@@ -22,103 +24,133 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ClinicaSaludPlusTheme {
-                // Se llama al método Composable de la clase
-                AppNavigationContent()
+                ClinicaSaludPlusNavHost()
             }
         }
     }
+}
 
-    // Al estar DENTRO de la clase MainActivity, no chocará con ninguna función de otro archivo
-    @Composable
-    private fun AppNavigationContent() {
-        val navController = rememberNavController()
+@Composable
+fun ClinicaSaludPlusNavHost() {
+    val navController = rememberNavController()
 
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Home.route
-        ) {
-            composable(Screen.Home.route) {
-                HomeScreen(
-                    currentRoute = Screen.Home.route,
-                    onNavigateToDestination = { route ->
-                        if (route != Screen.Home.route) {
-                            navController.navigate(route) {
-                                popUpTo(Screen.Home.route) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    },
-                    onDoctorSelected = { doctorId ->
-                        navController.navigate(Screen.DoctorDetail.createRoute(doctorId))
-                    }
-                )
-            }
-
-            composable(Screen.MyAppointments.route) {
-                MyAppointmentsScreen(
-                    currentRoute = Screen.MyAppointments.route,
-                    onNavigateToDestination = { route ->
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Home.route
+    ) {
+        composable(Screen.Home.route) {
+            HomeScreen(
+                currentRoute = Screen.Home.route,
+                onNavigateToDestination = { route ->
+                    if (route != Screen.Home.route) {
                         navController.navigate(route) {
                             popUpTo(Screen.Home.route) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
                         }
                     }
-                )
-            }
+                },
+                onDoctorSelected = { doctorId ->
+                    navController.navigate(Screen.DoctorDetail.createRoute(doctorId))
+                }
+            )
+        }
 
-            composable(
-                route = Screen.DoctorDetail.route,
-                arguments = listOf(navArgument("doctorId") { type = NavType.IntType })
-            ) { backStackEntry ->
-                val doctorId = backStackEntry.arguments?.getInt("doctorId") ?: 0
-                DoctorDetailScreen(
-                    doctorId = doctorId,
-                    onBackClick = { navController.popBackStack() },
-                    onScheduleClick = { id ->
-                        navController.navigate(Screen.Schedule.createRoute(id))
-                    }
-                )
-            }
-
-            composable(
-                route = Screen.Schedule.route,
-                arguments = listOf(navArgument("doctorId") { type = NavType.IntType })
-            ) { backStackEntry ->
-                val doctorId = backStackEntry.arguments?.getInt("doctorId") ?: 0
-                ScheduleScreen(
-                    doctorId = doctorId,
-                    onBackClick = { navController.popBackStack() },
-                    onConfirmClick = { id, date, time ->
-                        navController.navigate(Screen.Confirmation.createRoute(id, date, time))
-                    }
-                )
-            }
-
-            composable(
-                route = Screen.Confirmation.route,
-                arguments = listOf(
-                    navArgument("doctorId") { type = NavType.IntType },
-                    navArgument("date") { type = NavType.StringType },
-                    navArgument("time") { type = NavType.StringType }
-                )
-            ) { backStackEntry ->
-                val doctorId = backStackEntry.arguments?.getInt("doctorId") ?: 0
-                val date = backStackEntry.arguments?.getString("date") ?: ""
-                val time = backStackEntry.arguments?.getString("time") ?: ""
-
-                ConfirmationScreen(
-                    doctorId = doctorId,
-                    date = date,
-                    time = time,
-                    onHomeClick = {
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Home.route) { inclusive = true }
+        composable(Screen.MyAppointments.route) {
+            MyAppointmentsScreen(
+                currentRoute = Screen.MyAppointments.route,
+                onNavigateToDestination = { route ->
+                    if (route != Screen.MyAppointments.route) {
+                        navController.navigate(route) {
+                            popUpTo(Screen.Home.route) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
                         }
                     }
-                )
-            }
+                }
+            )
+        }
+
+        composable(Screen.MedicalHistory.route) {
+            MedicalHistoryScreen(
+                currentRoute = Screen.MedicalHistory.route,
+                onNavigateToDestination = { route ->
+                    if (route != Screen.MedicalHistory.route) {
+                        navController.navigate(route) {
+                            popUpTo(Screen.Home.route) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                }
+            )
+        }
+
+        composable(Screen.Profile.route) {
+            ProfileScreen(
+                currentRoute = Screen.Profile.route,
+                onNavigateToDestination = { route ->
+                    if (route != Screen.Profile.route) {
+                        navController.navigate(route) {
+                            popUpTo(Screen.Home.route) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = Screen.DoctorDetail.route,
+            arguments = listOf(navArgument("doctorId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val doctorId = backStackEntry.arguments?.getInt("doctorId") ?: 0
+            DoctorDetailScreen(
+                doctorId = doctorId,
+                onBackClick = { navController.popBackStack() },
+                onScheduleClick = { id ->
+                    navController.navigate(Screen.Schedule.createRoute(id))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.Schedule.route,
+            arguments = listOf(navArgument("doctorId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val doctorId = backStackEntry.arguments?.getInt("doctorId") ?: 0
+            ScheduleScreen(
+                doctorId = doctorId,
+                onBackClick = { navController.popBackStack() },
+                onConfirmClick = { id, date, time ->
+                    navController.navigate(Screen.Confirmation.createRoute(id, date, time))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.Confirmation.route,
+            arguments = listOf(
+                navArgument("doctorId") { type = NavType.IntType },
+                navArgument("date") { type = NavType.StringType },
+                navArgument("time") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val doctorId = backStackEntry.arguments?.getInt("doctorId") ?: 0
+            val date = backStackEntry.arguments?.getString("date") ?: ""
+            val time = backStackEntry.arguments?.getString("time") ?: ""
+
+            ConfirmationScreen(
+                doctorId = doctorId,
+                date = date,
+                time = time,
+                onHomeClick = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }

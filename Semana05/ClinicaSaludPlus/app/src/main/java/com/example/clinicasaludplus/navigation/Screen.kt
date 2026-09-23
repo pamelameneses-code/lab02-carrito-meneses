@@ -1,14 +1,13 @@
 package com.example.clinicasaludplus.navigation
 
-// Sealed class para definir todas las rutas posibles de la aplicación
 sealed class Screen(val route: String) {
-    // Rutas del menú lateral (Drawer) y principales
+    // Pantallas principales
     object Home : Screen("home")
     object MyAppointments : Screen("my_appointments")
     object MedicalHistory : Screen("medical_history")
     object Profile : Screen("profile")
 
-    // Rutas del flujo secuencial con parámetros
+    // Pantallas con parámetros
     object DoctorDetail : Screen("doctor_detail/{doctorId}") {
         fun createRoute(doctorId: Int) = "doctor_detail/$doctorId"
     }

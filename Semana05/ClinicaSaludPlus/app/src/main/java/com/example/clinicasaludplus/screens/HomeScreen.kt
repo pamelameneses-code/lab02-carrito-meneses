@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,12 +16,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.clinicasaludplus.components.DrawerContent
-import com.example.clinicasaludplus.components.TopBar
+import com.example.clinicasaludplus.components.MainDrawerContent
 import com.example.clinicasaludplus.data.Doctor
 import com.example.clinicasaludplus.data.MockData
+import com.example.clinicasaludplus.ui.theme.DarkText
+import com.example.clinicasaludplus.ui.theme.MedicalBlue
+import com.example.clinicasaludplus.ui.theme.MedicalLightBlue
+import com.example.clinicasaludplus.ui.theme.MedicalTurquoise
+import com.example.clinicasaludplus.ui.theme.PureWhite
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     currentRoute: String,
@@ -44,22 +50,39 @@ fun HomeScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DrawerContent(
+            MainDrawerContent(
                 currentRoute = currentRoute,
-                onDestinationClicked = { route ->
-                    scope.launch { drawerState.close() }
+                onNavigate = { route ->
                     onNavigateToDestination(route)
+                },
+                onCloseDrawer = {
+                    scope.launch { drawerState.close() }
                 }
             )
         }
     ) {
         Scaffold(
             topBar = {
-                TopBar(
-                    title = "Clínica Salud+",
-                    onMenuClick = {
-                        scope.launch { drawerState.open() }
-                    }
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = "Clínica Salud+",
+                            color = PureWhite,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = "Menú",
+                                tint = PureWhite
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MedicalBlue
+                    )
                 )
             }
         ) { innerPadding ->
@@ -74,7 +97,7 @@ fun HomeScreen(
                     text = "Encuentra tu especialista",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4A148C)
+                    color = MedicalBlue
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -90,8 +113,10 @@ fun HomeScreen(
                             onClick = { selectedSpecialty = specialty },
                             label = { Text(text = specialty) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF4A148C),
-                                selectedLabelColor = Color.White
+                                selectedContainerColor = MedicalBlue,
+                                selectedLabelColor = PureWhite,
+                                containerColor = MedicalLightBlue,
+                                labelColor = DarkText
                             )
                         )
                     }
@@ -127,7 +152,7 @@ fun DoctorItemCard(
             .fillMaxWidth()
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = PureWhite)
     ) {
         Row(
             modifier = Modifier
@@ -139,13 +164,13 @@ fun DoctorItemCard(
             Surface(
                 modifier = Modifier.size(50.dp),
                 shape = MaterialTheme.shapes.medium,
-                color = Color(0xFFEDE7F6)
+                color = MedicalLightBlue
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
                         text = doctor.name.take(2),
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4A148C)
+                        color = MedicalBlue
                     )
                 }
             }
@@ -157,11 +182,13 @@ fun DoctorItemCard(
                 Text(
                     text = doctor.name,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    color = DarkText
                 )
                 Text(
                     text = doctor.specialty,
-                    color = Color.Gray,
+                    color = MedicalTurquoise,
+                    fontWeight = FontWeight.Medium,
                     fontSize = 14.sp
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -175,7 +202,7 @@ fun DoctorItemCard(
                     Text(
                         text = "${doctor.rating} • ${doctor.experienceYears} años exp.",
                         fontSize = 12.sp,
-                        color = Color.DarkGray
+                        color = DarkText.copy(alpha = 0.7f)
                     )
                 }
             }
