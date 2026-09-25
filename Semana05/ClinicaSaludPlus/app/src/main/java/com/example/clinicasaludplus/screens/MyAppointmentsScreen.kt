@@ -3,12 +3,15 @@ package com.example.clinicasaludplus.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,7 +19,6 @@ import com.example.clinicasaludplus.components.MainDrawerContent
 import com.example.clinicasaludplus.data.Doctor
 import com.example.clinicasaludplus.data.MockData
 import com.example.clinicasaludplus.ui.theme.DarkText
-import com.example.clinicasaludplus.ui.theme.MedicalBlue
 import com.example.clinicasaludplus.ui.theme.MedicalLightBlue
 import com.example.clinicasaludplus.ui.theme.MedicalTurquoise
 import com.example.clinicasaludplus.ui.theme.PureWhite
@@ -31,12 +33,12 @@ fun MyAppointmentsScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // 1. Estado dinámico de la lista de citas
+    // 1. Estado dinámico de la lista de citas (mutableStateOf)
     var appointmentList by remember {
         mutableStateOf(MockData.doctors.take(2))
     }
 
-    // 2. Estado para controlar qué cita se va a cancelar mediante el AlertDialog
+    // 2. Estado para controlar el diálogo de cancelación
     var doctorToCancel by remember { mutableStateOf<Doctor?>(null) }
 
     ModalNavigationDrawer(
@@ -73,7 +75,7 @@ fun MyAppointmentsScreen(
                         }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MedicalBlue
+                        containerColor = MedicalTurquoise
                     )
                 )
             }
@@ -84,14 +86,58 @@ fun MyAppointmentsScreen(
                     .padding(innerPadding)
                     .padding(16.dp)
             ) {
+                // 3. Encabezado de Identidad Personalizada para Pamela Meneses
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MedicalTurquoise),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .clip(CircleShape),
+                            color = PureWhite
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "PM",
+                                    color = MedicalTurquoise,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = "¡Hola, Pamela Meneses!",
+                                color = PureWhite,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                            Text(
+                                text = "Gestiona tus citas agendadas",
+                                color = PureWhite.copy(alpha = 0.85f),
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+                }
+
                 Text(
                     text = "Próximas Citas Médicas",
-                    fontSize = 20.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MedicalBlue
+                    color = DarkText
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 if (appointmentList.isEmpty()) {
                     Box(
@@ -101,7 +147,7 @@ fun MyAppointmentsScreen(
                         Text(
                             text = "No tienes citas médicas programadas.",
                             color = DarkText,
-                            fontSize = 16.sp
+                            fontSize = 15.sp
                         )
                     }
                 } else {
@@ -112,7 +158,7 @@ fun MyAppointmentsScreen(
                         items(appointmentList) { doctor ->
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                                 colors = CardDefaults.cardColors(containerColor = PureWhite)
                             ) {
                                 Column(
@@ -161,7 +207,6 @@ fun MyAppointmentsScreen(
 
                                     Spacer(modifier = Modifier.height(12.dp))
 
-                                    // Botón para desplegar el AlertDialog
                                     Button(
                                         onClick = { doctorToCancel = doctor },
                                         colors = ButtonDefaults.buttonColors(
@@ -182,7 +227,7 @@ fun MyAppointmentsScreen(
                 }
             }
 
-            // 3. Cuadro de diálogo modal (AlertDialog)
+            // 4. Cuadro de diálogo modal (AlertDialog)
             doctorToCancel?.let { doctor ->
                 AlertDialog(
                     onDismissRequest = { doctorToCancel = null },
