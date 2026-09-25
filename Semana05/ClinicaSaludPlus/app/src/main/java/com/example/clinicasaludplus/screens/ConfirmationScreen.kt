@@ -28,14 +28,22 @@ fun ConfirmationScreen(
     // Registra la nueva cita en MockData al cargar la pantalla por primera vez
     LaunchedEffect(Unit) {
         if (doctor != null) {
-            val newAppointment = Appointment(
-                id = MockData.appointmentsList.size + 1,
-                doctorName = doctor.name,
-                date = date,
-                time = time,
-                status = "Confirmada"
-            )
-            MockData.appointmentsList.add(newAppointment)
+            // Verificamos si la cita ya fue registrada para no duplicarla si se recompone la pantalla
+            val yaExiste = MockData.appointmentsList.any {
+                it.doctorName == doctor.name && it.date == date && it.time == time
+            }
+
+            if (!yaExiste) {
+                val newAppointment = Appointment(
+                    id = System.currentTimeMillis().toInt(), // ID único basado en el tiempo
+                    doctorName = doctor.name,
+                    specialty = doctor.specialty,
+                    date = date,
+                    time = time,
+                    status = "Confirmada"
+                )
+                MockData.appointmentsList.add(newAppointment)
+            }
         }
     }
 

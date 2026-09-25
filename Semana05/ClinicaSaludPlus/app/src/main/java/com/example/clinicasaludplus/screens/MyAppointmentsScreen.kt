@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.clinicasaludplus.components.MainDrawerContent
-import com.example.clinicasaludplus.data.Doctor
+import com.example.clinicasaludplus.data.Appointment
 import com.example.clinicasaludplus.data.MockData
 import com.example.clinicasaludplus.ui.theme.DarkText
 import com.example.clinicasaludplus.ui.theme.MedicalLightBlue
@@ -33,25 +34,19 @@ fun MyAppointmentsScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // 1. Estado dinámico de la lista de citas (mutableStateOf)
-    var appointmentList by remember {
-        mutableStateOf(MockData.doctors.take(2))
-    }
+    val appointments = MockData.appointmentsList
+    var appointmentToCancel by remember { mutableStateOf<Appointment?>(null) }
 
-    // 2. Estado para controlar el diálogo de cancelación
-    var doctorToCancel by remember { mutableStateOf<Doctor?>(null) }
+    // Estado para controlar el diálogo de cancelar TODAS las citas
+    var showCancelAllDialog by remember { mutableStateOf(false) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             MainDrawerContent(
                 currentRoute = currentRoute,
-                onNavigate = { route ->
-                    onNavigateToDestination(route)
-                },
-                onCloseDrawer = {
-                    scope.launch { drawerState.close() }
-                }
+                onNavigate = { route -> onNavigateToDestination(route) },
+                onCloseDrawer = { scope.launch { drawerState.close() } }
             )
         }
     ) {
@@ -86,7 +81,7 @@ fun MyAppointmentsScreen(
                     .padding(innerPadding)
                     .padding(16.dp)
             ) {
-                // 3. Encabezado de Identidad Personalizada para Pamela Meneses
+                // Tarjeta de Perfil
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MedicalTurquoise),
                     shape = RoundedCornerShape(12.dp),
@@ -130,16 +125,42 @@ fun MyAppointmentsScreen(
                     }
                 }
 
-                Text(
-                    text = "Próximas Citas Médicas",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = DarkText
-                )
+                // Encabezado con Botón de "Cancelar Todas"
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Próximas Citas Médicas",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = DarkText
+                    )
+
+                    // Solo muestra el botón si hay al menos una cita
+                    if (appointments.isNotEmpty()) {
+                        TextButton(onClick = { showCancelAllDialog = true }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Borrar todas",
+                                color = MaterialTheme.colorScheme.error,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                if (appointmentList.isEmpty()) {
+                if (appointments.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -155,7 +176,7 @@ fun MyAppointmentsScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        items(appointmentList) { doctor ->
+                        items(appointments, key = { it.id }) { item ->
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -167,13 +188,13 @@ fun MyAppointmentsScreen(
                                         .fillMaxWidth()
                                 ) {
                                     Text(
-                                        text = doctor.name,
+                                        text = item.doctorName,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 16.sp,
                                         color = DarkText
                                     )
                                     Text(
-                                        text = doctor.specialty,
+                                        text = item.specialty,
                                         color = MedicalTurquoise,
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp
@@ -191,13 +212,13 @@ fun MyAppointmentsScreen(
                                             horizontalArrangement = Arrangement.SpaceBetween
                                         ) {
                                             Text(
-                                                text = "Fecha: Jue 26",
+                                                text = "Fecha: ${item.date}",
                                                 fontSize = 13.sp,
                                                 color = DarkText,
                                                 fontWeight = FontWeight.Medium
                                             )
                                             Text(
-                                                text = "Hora: 09:00 AM",
+                                                text = "Hora: ${item.time}",
                                                 fontSize = 13.sp,
                                                 color = DarkText,
                                                 fontWeight = FontWeight.Medium
@@ -208,7 +229,7 @@ fun MyAppointmentsScreen(
                                     Spacer(modifier = Modifier.height(12.dp))
 
                                     Button(
-                                        onClick = { doctorToCancel = doctor },
+                                        onClick = { appointmentToCancel = item },
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = MaterialTheme.colorScheme.errorContainer,
                                             contentColor = MaterialTheme.colorScheme.error
@@ -227,37 +248,51 @@ fun MyAppointmentsScreen(
                 }
             }
 
-            // 4. Cuadro de diálogo modal (AlertDialog)
-            doctorToCancel?.let { doctor ->
+            // Diálogo 1: Confirmar Cancelación de UNA sola cita
+            appointmentToCancel?.let { item ->
                 AlertDialog(
-                    onDismissRequest = { doctorToCancel = null },
-                    title = {
-                        Text(
-                            text = "Confirmar Cancelación",
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    text = {
-                        Text(
-                            text = "¿Estás segura de que deseas cancelar tu cita con ${doctor.name} (${doctor.specialty})?"
-                        )
-                    },
+                    onDismissRequest = { appointmentToCancel = null },
+                    title = { Text("Confirmar Cancelación", fontWeight = FontWeight.Bold) },
+                    text = { Text("¿Estás segura de que deseas cancelar tu cita con ${item.doctorName} (${item.specialty})?") },
                     confirmButton = {
                         Button(
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.error
-                            ),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                             onClick = {
-                                appointmentList = appointmentList.filter { it.id != doctor.id }
-                                doctorToCancel = null
+                                MockData.appointmentsList.removeIf { it.id == item.id }
+                                appointmentToCancel = null
                             }
                         ) {
                             Text("Sí, Cancelar", color = PureWhite)
                         }
                     },
                     dismissButton = {
-                        OutlinedButton(onClick = { doctorToCancel = null }) {
+                        OutlinedButton(onClick = { appointmentToCancel = null }) {
                             Text("Mantener Cita")
+                        }
+                    }
+                )
+            }
+
+            // Diálogo 2: Confirmar Cancelación de TODAS las citas
+            if (showCancelAllDialog) {
+                AlertDialog(
+                    onDismissRequest = { showCancelAllDialog = false },
+                    title = { Text("¿Cancelar todas las citas?", fontWeight = FontWeight.Bold) },
+                    text = { Text("Esta acción eliminará todas las citas programadas de la lista.") },
+                    confirmButton = {
+                        Button(
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                            onClick = {
+                                MockData.appointmentsList.clear() // Vacía toda la lista
+                                showCancelAllDialog = false
+                            }
+                        ) {
+                            Text("Sí, Borrar Todas", color = PureWhite)
+                        }
+                    },
+                    dismissButton = {
+                        OutlinedButton(onClick = { showCancelAllDialog = false }) {
+                            Text("Volver")
                         }
                     }
                 )

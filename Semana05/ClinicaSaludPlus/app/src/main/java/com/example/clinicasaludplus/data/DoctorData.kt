@@ -1,5 +1,7 @@
 package com.example.clinicasaludplus.data
 
+import androidx.compose.runtime.mutableStateListOf
+
 data class Doctor(
     val id: Int,
     val name: String,
@@ -12,9 +14,10 @@ data class Doctor(
 data class Appointment(
     val id: Int,
     val doctorName: String,
+    val specialty: String, // Se agregó para mostrar la especialidad en la tarjeta
     val date: String,
     val time: String,
-    val status: String
+    val status: String = "Confirmada"
 )
 
 object MockData {
@@ -50,8 +53,9 @@ object MockData {
     val dates = listOf("Jue 26", "Vie 27", "Sáb 28")
     val times = listOf("9:00 am", "10:30 am", "3:00 pm")
 
-    val appointmentsList = mutableListOf(
-        Appointment(1, "Dra. Ana Torres", "Viernes 27, 10:30 am", "10:30 am", "Confirmada"),
-        Appointment(2, "Dr. Luis Vega", "Miércoles 15, 3:00 pm", "3:00 pm", "Completada")
+    // Usamos mutableStateListOf para que Jetpack Compose detecte cuando agregas o eliminas citas
+    val appointmentsList = mutableStateListOf(
+        Appointment(1, "Dra. Ana Torres", "Cardiología", "Jue 26", "09:00 AM", "Confirmada"),
+        Appointment(2, "Dr. Luis Vega", "Pediatría", "Sáb 28", "10:30 am", "Confirmada")
     )
 }

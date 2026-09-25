@@ -134,6 +134,8 @@ fun ScheduleScreen(
                 enabled = selectedDate.isNotEmpty() && selectedTime.isNotEmpty(),
                 onClick = {
                     if (selectedDate.isNotEmpty() && selectedTime.isNotEmpty()) {
+                        // Solo pasamos la navegación a ConfirmationScreen.kt.
+                        // ConfirmationScreen ya se encarga de agregarlo a la lista.
                         onConfirmClick(doctorId, selectedDate, selectedTime)
                     }
                 },
