@@ -30,6 +30,11 @@ fun MyAppointmentsScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    // Estado dinámico de la lista de citas (Fase 2 - Commit 1)
+    var appointmentList by remember {
+        mutableStateOf(MockData.doctors.take(2))
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -84,58 +89,70 @@ fun MyAppointmentsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Muestra la lista de doctores con los que se agendó cita
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(MockData.doctors.take(2)) { doctor ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-                            colors = CardDefaults.cardColors(containerColor = PureWhite)
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .padding(16.dp)
-                                    .fillMaxWidth()
+                if (appointmentList.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No tienes citas médicas programadas.",
+                            color = DarkText,
+                            fontSize = 16.sp
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(appointmentList) { doctor ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                                colors = CardDefaults.cardColors(containerColor = PureWhite)
                             ) {
-                                Text(
-                                    text = doctor.name,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = DarkText
-                                )
-                                Text(
-                                    text = doctor.specialty,
-                                    color = MedicalTurquoise,
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = 14.sp
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                Surface(
-                                    shape = MaterialTheme.shapes.small,
-                                    color = MedicalLightBlue,
-                                    modifier = Modifier.fillMaxWidth()
+                                Column(
+                                    modifier = Modifier
+                                        .padding(16.dp)
+                                        .fillMaxWidth()
                                 ) {
-                                    Row(
-                                        modifier = Modifier.padding(8.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    Text(
+                                        text = doctor.name,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = DarkText
+                                    )
+                                    Text(
+                                        text = doctor.specialty,
+                                        color = MedicalTurquoise,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 14.sp
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Surface(
+                                        shape = MaterialTheme.shapes.small,
+                                        color = MedicalLightBlue,
+                                        modifier = Modifier.fillMaxWidth()
                                     ) {
-                                        Text(
-                                            text = "Fecha: Jue 26",
-                                            fontSize = 13.sp,
-                                            color = DarkText,
-                                            fontWeight = FontWeight.Medium
-                                        )
-                                        Text(
-                                            text = "Hora: 09:00 AM",
-                                            fontSize = 13.sp,
-                                            color = DarkText,
-                                            fontWeight = FontWeight.Medium
-                                        )
+                                        Row(
+                                            modifier = Modifier.padding(8.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text(
+                                                text = "Fecha: Jue 26",
+                                                fontSize = 13.sp,
+                                                color = DarkText,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                            Text(
+                                                text = "Hora: 09:00 AM",
+                                                fontSize = 13.sp,
+                                                color = DarkText,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
                                     }
                                 }
                             }
