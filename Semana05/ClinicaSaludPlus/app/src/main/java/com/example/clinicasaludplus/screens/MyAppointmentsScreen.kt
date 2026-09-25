@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.clinicasaludplus.components.MainDrawerContent
+import com.example.clinicasaludplus.data.Doctor
 import com.example.clinicasaludplus.data.MockData
 import com.example.clinicasaludplus.ui.theme.DarkText
 import com.example.clinicasaludplus.ui.theme.MedicalBlue
@@ -30,10 +31,13 @@ fun MyAppointmentsScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Estado dinámico de la lista de citas (Fase 2 - Commit 1)
+    // 1. Estado dinámico de la lista de citas
     var appointmentList by remember {
         mutableStateOf(MockData.doctors.take(2))
     }
+
+    // 2. Estado para controlar qué cita se va a cancelar mediante el AlertDialog
+    var doctorToCancel by remember { mutableStateOf<Doctor?>(null) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -154,11 +158,64 @@ fun MyAppointmentsScreen(
                                             )
                                         }
                                     }
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    // Botón para desplegar el AlertDialog
+                                    Button(
+                                        onClick = { doctorToCancel = doctor },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                                            contentColor = MaterialTheme.colorScheme.error
+                                        ),
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text(
+                                            text = "Cancelar Cita",
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
+            }
+
+            // 3. Cuadro de diálogo modal (AlertDialog)
+            doctorToCancel?.let { doctor ->
+                AlertDialog(
+                    onDismissRequest = { doctorToCancel = null },
+                    title = {
+                        Text(
+                            text = "Confirmar Cancelación",
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = "¿Estás segura de que deseas cancelar tu cita con ${doctor.name} (${doctor.specialty})?"
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            ),
+                            onClick = {
+                                appointmentList = appointmentList.filter { it.id != doctor.id }
+                                doctorToCancel = null
+                            }
+                        ) {
+                            Text("Sí, Cancelar", color = PureWhite)
+                        }
+                    },
+                    dismissButton = {
+                        OutlinedButton(onClick = { doctorToCancel = null }) {
+                            Text("Mantener Cita")
+                        }
+                    }
+                )
             }
         }
     }
