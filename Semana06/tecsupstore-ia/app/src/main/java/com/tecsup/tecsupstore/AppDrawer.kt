@@ -1,94 +1,92 @@
 package com.tecsup.tecsupstore
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun AppDrawer(
-    destinoActual: String,
+    destinoSeleccionado: String,
+    contadorFavoritos: Int,
     onNavegar: (String) -> Unit
 ) {
     ModalDrawerSheet {
-        Column(
+        // Cabecera del usuario personalizada a Pamela Meneses
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp)
+                .padding(24.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.size(48.dp)
             ) {
-                Text(
-                    text = "MR",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                Box(contentAlignment = Alignment.Center) {
+                    Text(text = "PM", style = MaterialTheme.typography.titleMedium)
+                }
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(text = "Pamela Meneses", style = MaterialTheme.typography.titleMedium)
-            Text(text = "pamela@tecsup.edu.pe", style = MaterialTheme.typography.bodySmall)
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(text = "Pamela Meneses", style = MaterialTheme.typography.titleMedium)
+                Text(text = "pamela.meneses@tecsup.edu.pe", style = MaterialTheme.typography.bodySmall)
+            }
         }
 
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider(modifier = Modifier.padding(bottom = 8.dp))
 
+        // Opciones del NavigationDrawer con íconos circulares
         NavigationDrawerItem(
             label = { Text("Inicio") },
-            selected = destinoActual == "inicio",
-            onClick = { onNavegar("inicio") },
-            icon = { Icon(Icons.Default.Home, contentDescription = null) },
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
+            selected = destinoSeleccionado == "Inicio",
+            onClick = { onNavegar("Inicio") },
+            icon = { Icon(Icons.Default.RadioButtonUnchecked, contentDescription = null) },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
 
         NavigationDrawerItem(
             label = { Text("Mis pedidos") },
-            selected = destinoActual == "pedidos",
-            onClick = { onNavegar("pedidos") },
-            icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null) },
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
+            selected = destinoSeleccionado == "Mis pedidos",
+            onClick = { onNavegar("Mis pedidos") },
+            icon = { Icon(Icons.Default.RadioButtonUnchecked, contentDescription = null) },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
 
         NavigationDrawerItem(
             label = { Text("Favoritos") },
-            selected = destinoActual == "favoritos",
-            onClick = { onNavegar("favoritos") },
-            icon = { Icon(Icons.Default.Favorite, contentDescription = null) },
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
+            selected = destinoSeleccionado == "Favoritos",
+            onClick = { onNavegar("Favoritos") },
+            icon = { Icon(Icons.Default.RadioButtonUnchecked, contentDescription = null) },
+            badge = {
+                if (contadorFavoritos > 0) {
+                    Badge {
+                        Text(text = contadorFavoritos.toString())
+                    }
+                }
+            },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
 
         NavigationDrawerItem(
             label = { Text("Perfil") },
-            selected = destinoActual == "perfil",
-            onClick = { onNavegar("perfil") },
-            icon = { Icon(Icons.Default.Person, contentDescription = null) },
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
+            selected = destinoSeleccionado == "Perfil",
+            onClick = { onNavegar("Perfil") },
+            icon = { Icon(Icons.Default.RadioButtonUnchecked, contentDescription = null) },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
 
-        Spacer(modifier = Modifier.weight(1f))
-        HorizontalDivider()
-
         NavigationDrawerItem(
-            label = { Text("Cerrar sesión") },
-            selected = false,
-            onClick = { },
-            icon = { Icon(Icons.Default.ExitToApp, contentDescription = null) },
-            modifier = Modifier.padding(12.dp)
+            label = { Text("Cerrar sesion") },
+            selected = destinoSeleccionado == "Cerrar sesion",
+            onClick = { onNavegar("Cerrar sesion") },
+            icon = { Icon(Icons.Default.RadioButtonUnchecked, contentDescription = null) },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
     }
 }

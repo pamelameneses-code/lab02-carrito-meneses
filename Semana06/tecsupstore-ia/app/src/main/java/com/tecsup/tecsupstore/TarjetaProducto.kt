@@ -5,24 +5,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import java.util.Locale
 
 @Composable
 fun TarjetaProducto(
     producto: Producto,
     onAgregarFavorito: () -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var menuExpandido by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(vertical = 6.dp)
     ) {
         Row(
             modifier = Modifier
@@ -31,41 +33,65 @@ fun TarjetaProducto(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium)
-                Text(text = "S/ ${producto.precio}", style = MaterialTheme.typography.bodyMedium)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Ícono de bolsa de compras a la izquierda
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.ShoppingBag,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column {
+                    Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    // Muestra 2 decimales siempre (ejemplo: S/ 89.00)
+                    Text(
+                        text = String.format(Locale.US, "S/ %.2f", producto.precio),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
 
+            // Menú contextual desplegable (3 puntos)
             Box {
-                IconButton(onClick = { expanded = true }) {
+                IconButton(onClick = { menuExpandido = true }) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Opciones"
+                        contentDescription = "Opciones del producto"
                     )
                 }
 
                 DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    expanded = menuExpandido,
+                    onDismissRequest = { menuExpandido = false }
                 ) {
                     DropdownMenuItem(
                         text = { Text("Favoritos") },
                         leadingIcon = { Icon(Icons.Default.Favorite, contentDescription = null) },
                         onClick = {
                             onAgregarFavorito()
-                            expanded = false
+                            menuExpandido = false
                         }
                     )
-                    HorizontalDivider()
                     DropdownMenuItem(
                         text = { Text("Compartir") },
                         leadingIcon = { Icon(Icons.Default.Share, contentDescription = null) },
-                        onClick = { expanded = false }
+                        onClick = { menuExpandido = false }
                     )
                     DropdownMenuItem(
                         text = { Text("Reportar") },
                         leadingIcon = { Icon(Icons.Default.Warning, contentDescription = null) },
-                        onClick = { expanded = false }
+                        onClick = { menuExpandido = false }
                     )
                 }
             }
