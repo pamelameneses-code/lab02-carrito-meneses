@@ -25,13 +25,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
+import com.tecsup.mibodega.ui.componentes.IconoMetodoPago
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatosEntregaScreen(
     carrito: List<ItemCarrito>,
     onVolver: () -> Unit,
-    onConfirmarPedido: () -> Unit
+    onConfirmarPedido: (String, String) -> Unit
 ) {
     var nombre by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
@@ -87,7 +88,8 @@ fun DatosEntregaScreen(
                         selected = metodoPago == metodo,
                         onClick = { metodoPago = metodo }
                     )
-                    Text(metodo)
+                    IconoMetodoPago(metodo)
+                    Text(metodo, modifier = Modifier.padding(start = 8.dp))
                 }
             }
 
@@ -96,7 +98,11 @@ fun DatosEntregaScreen(
             Text("Total: S/ %.2f".format(total))
 
             Button(
-                onClick = onConfirmarPedido,
+                onClick = {
+                    val direccionCompleta =
+                        if (referencia.isBlank()) direccion else "$direccion ($referencia)"
+                    onConfirmarPedido(direccionCompleta, metodoPago)
+                },
                 enabled = datosCompletos,
                 modifier = Modifier.fillMaxWidth()
             ) {
