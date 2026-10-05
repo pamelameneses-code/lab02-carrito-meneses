@@ -15,16 +15,24 @@ import com.tecsup.mibodega.ui.cliente.modelo.Producto
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.cliente.screens.bienvenida.BienvenidaScreen
 import com.tecsup.mibodega.ui.cliente.screens.carrito.CarritoScreen
+import com.tecsup.mibodega.ui.cliente.screens.categorias.CategoriasScreen
 import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
 import com.tecsup.mibodega.ui.cliente.screens.detalle.DetalleProductoScreen
 import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
+import com.tecsup.mibodega.ui.cliente.screens.login.LoginScreen
+import com.tecsup.mibodega.ui.cliente.screens.pedidos.PedidosScreen
+import com.tecsup.mibodega.ui.cliente.screens.perfil.PerfilScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
 
 private object Rutas {
     const val BIENVENIDA = "bienvenida"
+    const val LOGIN = "login"
     const val REGISTRO = "registro"
     const val INICIO = "inicio"
+    const val CATEGORIAS = "categorias"
+    const val PEDIDOS = "pedidos"
+    const val PERFIL = "perfil"
     const val DETALLE = "detalle/{productoId}"
     const val CARRITO = "carrito"
     const val ENTREGA = "entrega"
@@ -38,6 +46,22 @@ fun ClienteApp() {
     val navController = rememberNavController()
 
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
+    var nombreUsuario by remember { mutableStateOf("Cliente") }
+    var telefonoUsuario by remember { mutableStateOf("-") }
+
+    // Navegación de la barra inferior: 0 Inicio, 1 Categorías, 2 Pedidos, 3 Perfil
+    val navegarTab: (Int) -> Unit = { indice ->
+        val destino = when (indice) {
+            0 -> Rutas.INICIO
+            1 -> Rutas.CATEGORIAS
+            2 -> Rutas.PEDIDOS
+            else -> Rutas.PERFIL
+        }
+        navController.navigate(destino) {
+            popUpTo(Rutas.INICIO)
+            launchSingleTop = true
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -46,12 +70,19 @@ fun ClienteApp() {
         composable(Rutas.BIENVENIDA) {
             BienvenidaScreen(
                 onRegistrarse = { navController.navigate(Rutas.REGISTRO) },
-                onIniciarSesion = {
+                onIniciarSesion = { navController.navigate(Rutas.LOGIN) },
+                onTerminos = { /* TODO: abrir términos y condiciones */ }
+            )
+        }
+
+        composable(Rutas.LOGIN) {
+            LoginScreen(
+                onVolver = { navController.popBackStack() },
+                onIngresar = {
                     navController.navigate(Rutas.INICIO) {
                         popUpTo(Rutas.BIENVENIDA) { inclusive = true }
                     }
-                },
-                onTerminos = { /* TODO: abrir términos y condiciones */ }
+                }
             )
         }
 
@@ -59,6 +90,8 @@ fun ClienteApp() {
             RegistroScreen(
                 onVolver = { navController.popBackStack() },
                 onCrearCuenta = { nombre, telefono, direccion, referencia ->
+                    nombreUsuario = nombre
+                    telefonoUsuario = telefono
                     navController.navigate(Rutas.INICIO) {
                         popUpTo(Rutas.BIENVENIDA) { inclusive = true }
                     }
@@ -75,6 +108,29 @@ fun ClienteApp() {
                 },
                 onAgregarProducto = { producto ->
                     carrito = agregarOSumarProducto(carrito, producto, 1)
+                },
+                onNavegarTab = navegarTab
+            )
+        }
+
+        composable(Rutas.CATEGORIAS) {
+            CategoriasScreen(onNavegarTab = navegarTab)
+        }
+
+        composable(Rutas.PEDIDOS) {
+            PedidosScreen(onNavegarTab = navegarTab)
+        }
+
+        composable(Rutas.PERFIL) {
+            PerfilScreen(
+                nombre = nombreUsuario,
+                telefono = telefonoUsuario,
+                onNavegarTab = navegarTab,
+                onCerrarSesion = {
+                    carrito = emptyList()
+                    navController.navigate(Rutas.BIENVENIDA) {
+                        popUpTo(Rutas.INICIO) { inclusive = true }
+                    }
                 }
             )
         }
@@ -121,14 +177,12 @@ fun ClienteApp() {
             )
         }
 
-        // ---------- NUEVO ----------
         composable(Rutas.ENTREGA) {
             DatosEntregaScreen(
                 carrito = carrito,
                 onVolver = { navController.popBackStack() },
                 onConfirmarPedido = {
                     navController.navigate(Rutas.CONFIRMACION) {
-                        // Saca Carrito y Entrega del historial: atrás no vuelve al carrito
                         popUpTo(Rutas.INICIO) { inclusive = false }
                     }
                 }
@@ -146,7 +200,6 @@ fun ClienteApp() {
                 }
             )
         }
-        // ---------------------------
     }
 }
 
