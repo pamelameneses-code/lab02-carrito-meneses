@@ -240,4 +240,3 @@ private fun CarritoPreview() {
         )
     }
 }
-

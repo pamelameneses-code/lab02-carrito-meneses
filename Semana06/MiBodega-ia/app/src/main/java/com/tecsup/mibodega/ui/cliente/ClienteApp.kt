@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
+import com.tecsup.mibodega.ui.cliente.modelo.Pedido
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.cliente.screens.bienvenida.BienvenidaScreen
@@ -46,6 +47,7 @@ fun ClienteApp() {
     val navController = rememberNavController()
 
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
+    var pedidos by remember { mutableStateOf<List<Pedido>>(emptyList()) }
     var nombreUsuario by remember { mutableStateOf("Cliente") }
     var telefonoUsuario by remember { mutableStateOf("-") }
     var numeroPedido by remember { mutableStateOf(1000) }
@@ -122,7 +124,10 @@ fun ClienteApp() {
         }
 
         composable(Rutas.PEDIDOS) {
-            PedidosScreen(onNavegarTab = navegarTab)
+            PedidosScreen(
+                pedidos = pedidos,
+                onNavegarTab = navegarTab
+            )
         }
 
         composable(Rutas.PERFIL) {
@@ -189,6 +194,18 @@ fun ClienteApp() {
                     numeroPedido += 1
                     direccionPedido = direccion
                     metodoPagoPedido = metodo
+
+                    // Guardar el pedido (antes de vaciar el carrito)
+                    pedidos = listOf(
+                        Pedido(
+                            numero = numeroPedido,
+                            cantidadProductos = carrito.sumOf { it.cantidad },
+                            total = carrito.sumOf { it.producto.precio * it.cantidad } + 4.0,
+                            direccion = direccion,
+                            metodoPago = metodo
+                        )
+                    ) + pedidos
+
                     navController.navigate(Rutas.CONFIRMACION) {
                         popUpTo(Rutas.INICIO) { inclusive = false }
                     }
