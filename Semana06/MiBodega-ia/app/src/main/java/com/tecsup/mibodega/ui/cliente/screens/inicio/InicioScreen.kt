@@ -3,6 +3,7 @@ package com.tecsup.mibodega.ui.cliente.screens.inicio
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,10 +17,15 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,7 +40,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,23 +52,17 @@ import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.componentes.BarraInferior
 import com.tecsup.mibodega.ui.componentes.ProductoCard
 import com.tecsup.mibodega.ui.theme.BodegaTheme
-import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
-/**
- * Pantalla 3: Inicio / Productos (mockup "Cliente").
- * La más completa: Scaffold (topBar + bottomBar), LazyRow de categorías
- * y LazyVerticalGrid de productos.
- *
- * @param productos lista completa (fake por ahora, luego vendrá de un ViewModel)
- * @param cantidadCarrito para el badge del carrito en la topBar
- * @param onNavegarTab avisa a ClienteApp qué pestaña de la barra inferior se tocó
- */
+private enum class OrdenPrecio { NINGUNO, MENOR_A_MAYOR, MAYOR_A_MENOR }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InicioScreen(
     productos: List<Producto> = listaProductosFake,
     cantidadCarrito: Int,
+    favoritos: List<Int> = emptyList(),
+    onToggleFavorito: (Producto) -> Unit = {},
     onVerCarrito: () -> Unit,
     onProductoClick: (Producto) -> Unit,
     onAgregarProducto: (Producto) -> Unit,
@@ -68,6 +70,8 @@ fun InicioScreen(
 ) {
     var categoriaSeleccionada by remember { mutableStateOf(listaCategorias.first()) }
     var textoBusqueda by remember { mutableStateOf("") }
+    var orden by remember { mutableStateOf(OrdenPrecio.NINGUNO) }
+    var menuOrdenAbierto by remember { mutableStateOf(false) }
 
     val productosFiltrados = productos.filter { producto ->
         val coincideCategoria = categoriaSeleccionada == "Todos" || producto.categoria == categoriaSeleccionada
@@ -75,11 +79,39 @@ fun InicioScreen(
         coincideCategoria && coincideBusqueda
     }
 
+    val productosOrdenados = when (orden) {
+        OrdenPrecio.MENOR_A_MAYOR -> productosFiltrados.sortedBy { it.precio }
+        OrdenPrecio.MAYOR_A_MENOR -> productosFiltrados.sortedByDescending { it.precio }
+        OrdenPrecio.NINGUNO -> productosFiltrados
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Mi Bodega", fontWeight = FontWeight.Bold) },
                 actions = {
+                    Box {
+                        IconButton(onClick = { menuOrdenAbierto = true }) {
+                            Icon(Icons.Default.SwapVert, contentDescription = "Ordenar por precio")
+                        }
+                        DropdownMenu(
+                            expanded = menuOrdenAbierto,
+                            onDismissRequest = { menuOrdenAbierto = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Precio: menor a mayor") },
+                                onClick = { orden = OrdenPrecio.MENOR_A_MAYOR; menuOrdenAbierto = false }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Precio: mayor a menor") },
+                                onClick = { orden = OrdenPrecio.MAYOR_A_MENOR; menuOrdenAbierto = false }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Sin orden") },
+                                onClick = { orden = OrdenPrecio.NINGUNO; menuOrdenAbierto = false }
+                            )
+                        }
+                    }
                     IconButton(onClick = onVerCarrito) {
                         BadgedBox(
                             badge = {
@@ -113,9 +145,9 @@ fun InicioScreen(
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = GrisClaro,
-                    focusedContainerColor = GrisClaro,
-                    unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedBorderColor = Color.Transparent,
                     focusedBorderColor = VerdeBodega
                 )
             )
@@ -146,19 +178,30 @@ fun InicioScreen(
                 contentPadding = PaddingValues(vertical = 12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(productosFiltrados) { producto ->
-                    ProductoCard(
-                        producto = producto,
-                        onClick = { onProductoClick(producto) },
-                        onAgregar = { onAgregarProducto(producto) }
-                    )
+                items(productosOrdenados) { producto ->
+                    val esFavorito = producto.id in favoritos
+                    Box {
+                        ProductoCard(
+                            producto = producto,
+                            onClick = { onProductoClick(producto) },
+                            onAgregar = { onAgregarProducto(producto) }
+                        )
+                        IconButton(
+                            onClick = { onToggleFavorito(producto) },
+                            modifier = Modifier.align(Alignment.TopEnd)
+                        ) {
+                            Icon(
+                                imageVector = if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favorito",
+                                tint = if (esFavorito) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
-
-// Sub-composable PRIVADO: solo lo usa esta pantalla.
 
 @Composable
 private fun ChipCategoria(
@@ -166,7 +209,7 @@ private fun ChipCategoria(
     seleccionado: Boolean,
     onClick: () -> Unit
 ) {
-    val fondo = if (seleccionado) VerdeBodega else GrisClaro
+    val fondo = if (seleccionado) VerdeBodega else MaterialTheme.colorScheme.surfaceVariant
     val contenido = if (seleccionado) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
 
     Row(

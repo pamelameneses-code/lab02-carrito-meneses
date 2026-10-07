@@ -1,5 +1,9 @@
 package com.tecsup.mibodega.ui.cliente
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,10 +20,10 @@ import com.tecsup.mibodega.ui.cliente.modelo.Producto
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.cliente.screens.bienvenida.BienvenidaScreen
 import com.tecsup.mibodega.ui.cliente.screens.carrito.CarritoScreen
-import com.tecsup.mibodega.ui.cliente.screens.categorias.CategoriasScreen
 import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
 import com.tecsup.mibodega.ui.cliente.screens.detalle.DetalleProductoScreen
 import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
+import com.tecsup.mibodega.ui.cliente.screens.favoritos.FavoritosScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.login.LoginScreen
 import com.tecsup.mibodega.ui.cliente.screens.pedidos.PedidosScreen
@@ -31,7 +35,7 @@ private object Rutas {
     const val LOGIN = "login"
     const val REGISTRO = "registro"
     const val INICIO = "inicio"
-    const val CATEGORIAS = "categorias"
+    const val FAVORITOS = "favoritos"
     const val PEDIDOS = "pedidos"
     const val PERFIL = "perfil"
     const val DETALLE = "detalle/{productoId}"
@@ -43,22 +47,30 @@ private object Rutas {
 }
 
 @Composable
-fun ClienteApp() {
+fun ClienteApp(
+    modoOscuro: Boolean = false,
+    onCambiarModoOscuro: (Boolean) -> Unit = {}
+) {
     val navController = rememberNavController()
 
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
     var pedidos by remember { mutableStateOf<List<Pedido>>(emptyList()) }
+    var favoritos by remember { mutableStateOf<List<Int>>(emptyList()) }
     var nombreUsuario by remember { mutableStateOf("Cliente") }
     var telefonoUsuario by remember { mutableStateOf("-") }
     var numeroPedido by remember { mutableStateOf(1000) }
     var direccionPedido by remember { mutableStateOf("") }
     var metodoPagoPedido by remember { mutableStateOf("") }
 
-    // Navegación de la barra inferior: 0 Inicio, 1 Categorías, 2 Pedidos, 3 Perfil
+    val alternarFavorito: (Producto) -> Unit = { producto ->
+        favoritos = if (producto.id in favoritos) favoritos - producto.id else favoritos + producto.id
+    }
+
+    // Navegación de la barra inferior: 0 Inicio, 1 Favoritos, 2 Pedidos, 3 Perfil
     val navegarTab: (Int) -> Unit = { indice ->
         val destino = when (indice) {
             0 -> Rutas.INICIO
-            1 -> Rutas.CATEGORIAS
+            1 -> Rutas.FAVORITOS
             2 -> Rutas.PEDIDOS
             else -> Rutas.PERFIL
         }
@@ -70,7 +82,11 @@ fun ClienteApp() {
 
     NavHost(
         navController = navController,
-        startDestination = Rutas.BIENVENIDA
+        startDestination = Rutas.BIENVENIDA,
+        enterTransition = { slideInHorizontally { it / 3 } + fadeIn() },
+        exitTransition = { slideOutHorizontally { -it / 3 } + fadeOut() },
+        popEnterTransition = { slideInHorizontally { -it / 3 } + fadeIn() },
+        popExitTransition = { slideOutHorizontally { it / 3 } + fadeOut() }
     ) {
         composable(Rutas.BIENVENIDA) {
             BienvenidaScreen(
@@ -108,6 +124,8 @@ fun ClienteApp() {
         composable(Rutas.INICIO) {
             InicioScreen(
                 cantidadCarrito = carrito.sumOf { it.cantidad },
+                favoritos = favoritos,
+                onToggleFavorito = alternarFavorito,
                 onVerCarrito = { navController.navigate(Rutas.CARRITO) },
                 onProductoClick = { producto ->
                     navController.navigate(Rutas.detalle(producto.id))
@@ -119,8 +137,18 @@ fun ClienteApp() {
             )
         }
 
-        composable(Rutas.CATEGORIAS) {
-            CategoriasScreen(onNavegarTab = navegarTab)
+        composable(Rutas.FAVORITOS) {
+            FavoritosScreen(
+                productos = listaProductosFake.filter { it.id in favoritos },
+                onProductoClick = { producto ->
+                    navController.navigate(Rutas.detalle(producto.id))
+                },
+                onAgregarProducto = { producto ->
+                    carrito = agregarOSumarProducto(carrito, producto, 1)
+                },
+                onQuitarFavorito = alternarFavorito,
+                onNavegarTab = navegarTab
+            )
         }
 
         composable(Rutas.PEDIDOS) {
@@ -134,6 +162,8 @@ fun ClienteApp() {
             PerfilScreen(
                 nombre = nombreUsuario,
                 telefono = telefonoUsuario,
+                modoOscuro = modoOscuro,
+                onCambiarModoOscuro = onCambiarModoOscuro,
                 onNavegarTab = navegarTab,
                 onCerrarSesion = {
                     carrito = emptyList()

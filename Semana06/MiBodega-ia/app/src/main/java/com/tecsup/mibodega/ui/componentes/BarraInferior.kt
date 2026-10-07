@@ -1,37 +1,38 @@
 package com.tecsup.mibodega.ui.componentes
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.tecsup.mibodega.ui.theme.VerdeBodega
+import androidx.compose.ui.graphics.vector.ImageVector
+
+private data class ItemBarra(val titulo: String, val icono: ImageVector)
+
+private val items = listOf(
+    ItemBarra("Inicio", Icons.Default.Home),
+    ItemBarra("Favoritos", Icons.Default.Favorite),
+    ItemBarra("Pedidos", Icons.Default.ShoppingCart),
+    ItemBarra("Perfil", Icons.Default.Person)
+)
 
 @Composable
-fun BarraInferior(seleccionado: Int, onNavegar: (Int) -> Unit) {
-    val items = listOf(
-        Triple("Inicio", Icons.Default.Home, 0),
-        Triple("Categorías", Icons.Default.List, 1),
-        Triple("Pedidos", Icons.Default.Receipt, 2),
-        Triple("Perfil", Icons.Default.Person, 3)
-    )
+fun BarraInferior(
+    seleccionado: Int,
+    onNavegar: (Int) -> Unit
+) {
     NavigationBar {
-        items.forEach { (etiqueta, icono, indice) ->
+        items.forEachIndexed { indice, item ->
             NavigationBarItem(
                 selected = seleccionado == indice,
                 onClick = { onNavegar(indice) },
-                icon = { Icon(icono, contentDescription = etiqueta) },
-                label = { Text(etiqueta) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = VerdeBodega,
-                    selectedTextColor = VerdeBodega
-                )
+                icon = { Icon(item.icono, contentDescription = item.titulo) },
+                label = { Text(item.titulo) }
             )
         }
     }
