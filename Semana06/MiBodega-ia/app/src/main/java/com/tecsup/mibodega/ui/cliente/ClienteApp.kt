@@ -48,6 +48,9 @@ fun ClienteApp() {
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
     var nombreUsuario by remember { mutableStateOf("Cliente") }
     var telefonoUsuario by remember { mutableStateOf("-") }
+    var numeroPedido by remember { mutableStateOf(1000) }
+    var direccionPedido by remember { mutableStateOf("") }
+    var metodoPagoPedido by remember { mutableStateOf("") }
 
     // Navegación de la barra inferior: 0 Inicio, 1 Categorías, 2 Pedidos, 3 Perfil
     val navegarTab: (Int) -> Unit = { indice ->
@@ -78,7 +81,8 @@ fun ClienteApp() {
         composable(Rutas.LOGIN) {
             LoginScreen(
                 onVolver = { navController.popBackStack() },
-                onIngresar = {
+                onIngresar = { usuario ->
+                    nombreUsuario = usuario
                     navController.navigate(Rutas.INICIO) {
                         popUpTo(Rutas.BIENVENIDA) { inclusive = true }
                     }
@@ -181,7 +185,10 @@ fun ClienteApp() {
             DatosEntregaScreen(
                 carrito = carrito,
                 onVolver = { navController.popBackStack() },
-                onConfirmarPedido = {
+                onConfirmarPedido = { direccion, metodo ->
+                    numeroPedido += 1
+                    direccionPedido = direccion
+                    metodoPagoPedido = metodo
                     navController.navigate(Rutas.CONFIRMACION) {
                         popUpTo(Rutas.INICIO) { inclusive = false }
                     }
@@ -192,6 +199,13 @@ fun ClienteApp() {
         composable(Rutas.CONFIRMACION) {
             ConfirmacionScreen(
                 carrito = carrito,
+                numeroPedido = numeroPedido,
+                direccion = direccionPedido,
+                metodoPago = metodoPagoPedido,
+                onVerEstado = {
+                    carrito = emptyList()
+                    navegarTab(2)
+                },
                 onVolverAlInicio = {
                     carrito = emptyList()
                     navController.navigate(Rutas.INICIO) {

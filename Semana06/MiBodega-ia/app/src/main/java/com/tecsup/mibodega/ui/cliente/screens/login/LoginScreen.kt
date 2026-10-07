@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
@@ -28,9 +26,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoginScreen(
     onVolver: () -> Unit,
-    onIngresar: () -> Unit
+    onIngresar: (String) -> Unit
 ) {
-    var telefono by remember { mutableStateOf("") }
+    var usuario by remember { mutableStateOf("") }
     var clave by remember { mutableStateOf("") }
     var hayError by remember { mutableStateOf(false) }
 
@@ -50,16 +48,15 @@ fun LoginScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             OutlinedTextField(
-                value = telefono,
-                onValueChange = { telefono = it },
-                label = { Text("Teléfono") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                value = usuario,
+                onValueChange = { usuario = it; hayError = false },
+                label = { Text("Usuario") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = clave,
-                onValueChange = { clave = it },
+                onValueChange = { clave = it; hayError = false },
                 label = { Text("Contraseña") },
                 visualTransformation = PasswordVisualTransformation(),
                 singleLine = true,
@@ -68,14 +65,14 @@ fun LoginScreen(
 
             if (hayError) {
                 Text(
-                    "Completa tu teléfono y contraseña",
+                    "Completa tu usuario y contraseña",
                     color = MaterialTheme.colorScheme.error
                 )
             }
 
             Button(
                 onClick = {
-                    if (telefono.isNotBlank() && clave.isNotBlank()) onIngresar()
+                    if (usuario.isNotBlank() && clave.isNotBlank()) onIngresar(usuario)
                     else hayError = true
                 },
                 modifier = Modifier.fillMaxWidth()
