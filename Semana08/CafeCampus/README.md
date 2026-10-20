@@ -119,42 +119,57 @@ El tema CafeTheme aplica el perfil y el modo oscuro; los colores fijos están ce
 
 ## Capturas de la aplicación
 
-Las seis capturas reales todavía están pendientes. No se sustituyen por los mockups del laboratorio. Guarda los PNG en `docs/capturas/` usando los nombres de esta tabla; la guía explica cómo obtenerlas e insertarlas.
+Capturas reales proporcionadas por la usuaria, en modo oscuro. Se incluyen las seis vistas principales solicitadas y cinco vistas adicionales; los archivos originales no fueron retocados.
 
-| Perfil | Pantalla | Archivo previsto | Estado |
-| --- | --- | --- | --- |
-| Estudiante | Menú | `docs/capturas/01-cliente-menu.png` | Pendiente |
-| Estudiante | Confirmar pedido | `docs/capturas/02-cliente-confirmar.png` | Pendiente |
-| Estudiante | Seguimiento | `docs/capturas/03-cliente-seguimiento.png` | Pendiente |
-| Administrador | Panel | `docs/capturas/04-admin-panel.png` | Pendiente |
-| Administrador | Pedidos | `docs/capturas/05-admin-pedidos.png` | Pendiente |
-| Administrador | Gestión del menú | `docs/capturas/06-admin-menu.png` | Pendiente |
+### Estudiante
 
-[Guía de capturas](docs/capturas/README.md) · [Guía de pruebas de aceptación](docs/PRUEBAS_ACEPTACION.md)
+| Menú | Confirmación: bolsa vacía | Seguimiento |
+| --- | --- | --- |
+| <img src="docs/capturas/01-cliente-menu.png" width="240" alt="Menú del estudiante"> | <img src="docs/capturas/02-cliente-confirmar.png" width="240" alt="Formulario con bolsa vacía"> | <img src="docs/capturas/03-cliente-seguimiento.png" width="240" alt="Pedido 0009 Recibido"> |
+
+La captura central muestra el formulario sin productos, total S/ 0.00 y confirmación deshabilitada. En esa imagen el título visible dice «Seguimiento», aunque el contenido corresponde al formulario de confirmación; se conserva la evidencia original sin corregirla gráficamente. Para demostrar el resumen antes del envío, queda pendiente una captura de este formulario con productos en la bolsa.
+
+### Administrador
+
+| Panel | Pedidos | Gestión del menú |
+| --- | --- | --- |
+| <img src="docs/capturas/04-admin-panel.png" width="240" alt="Panel de control"> | <img src="docs/capturas/05-admin-pedidos.png" width="240" alt="Pedidos listos"> | <img src="docs/capturas/06-admin-menu.png" width="240" alt="Gestión del menú"> |
+
+### Vistas adicionales
+
+| Login | Mis pedidos | Perfil |
+| --- | --- | --- |
+| <img src="docs/capturas/07-cliente-login.png" width="240" alt="Login del estudiante"> | <img src="docs/capturas/08-cliente-pedidos.png" width="240" alt="Mis pedidos"> | <img src="docs/capturas/09-cliente-perfil.png" width="240" alt="Perfil del estudiante"> |
+
+| Editar producto | Ajustes |
+| --- | --- |
+| <img src="docs/capturas/10-admin-editar-producto.png" width="240" alt="Editar producto"> | <img src="docs/capturas/11-admin-ajustes.png" width="240" alt="Ajustes del administrador"> |
+
+[Índice y alcance de las capturas](docs/capturas/README.md) · [Pruebas y evidencias](docs/PRUEBAS_ACEPTACION.md)
 
 ## Paso 12: pruebas de aceptación
 
-La revisión del asistente no ejecutó Gradle ni compiló el proyecto. El usuario ya abrió versiones de la aplicación en Android Studio, pero no se dispone de evidencia suficiente para marcar las nueve pruebas como aprobadas. En el último intento de revisión visual, el emulador mostraba la pantalla de arranque de Android; no se obtuvieron capturas de las pantallas ni se completaron pruebas. Una revisión del código no equivale a una prueba aprobada.
+La usuaria proporcionó once capturas reales. Estas confirman visualmente la ejecución de pantallas de ambos perfiles y aportan evidencia parcial de algunas pruebas. El asistente no ejecutó Gradle ni las secuencias completas de prueba; por eso se distingue «evidencia parcial» de una prueba aprobada.
 
 La guía enlazada indica pasos, resultados esperados y evidencias para completar cada prueba sin borrar los datos del dispositivo.
 
 | Prueba | Resultado esperado | Estado |
 | --- | --- | --- |
 | Login con clave incorrecta | Mensaje de error; no permite entrar. | Pendiente en emulador |
-| Estudiante agrega 2 productos y confirma | Pedido RECIBIDO, total correcto y carrito vacío. | Pendiente en emulador |
-| Producto agotado | No permite agregarlo ni confirmar un carrito que lo contiene. | Pendiente en emulador |
-| Administrador pasa un pedido a Preparando | Seguimiento cambia por Flow sin reiniciar. | Pendiente en emulador |
+| Estudiante agrega 2 productos y confirma | Pedido RECIBIDO, total correcto y carrito vacío. | Parcial: #0009 Recibido, Menú S/ 12.00 + Empanada S/ 4.50 = S/ 16.50; no se ve la secuencia de envío/vaciado. |
+| Producto agotado | No permite agregarlo ni confirmar un carrito que lo contiene. | Parcial: Café americano Agotado y botón + deshabilitado en el menú; falta probar confirmación. |
+| Administrador pasa un pedido a Preparando | Seguimiento cambia por Flow sin reiniciar. | Parcial: se ven estados Preparando/Listo y el #0008 Listo en ambos perfiles; no se observa la transición en vivo. |
 | Administrador cancela un pedido | Aparece CANCELADO en el historial del estudiante. | Pendiente en emulador |
 | Administrador cambia el precio de un producto | Los pedidos anteriores conservan nombre y precio unitario. | Pendiente en emulador |
-| Ventas del día | Suma pedidos del día no cancelados. | Pendiente en emulador |
-| Cerrar y abrir la aplicación | Persisten pedidos y modo oscuro; se vuelve a solicitar login, según el ajuste pedido por el usuario. | Pendiente en emulador |
+| Ventas del día | Suma pedidos del día no cancelados. | Parcial: panel S/ 106.50 y 8 pedidos; falta contrastar cancelados y suma. |
+| Cerrar y abrir la aplicación | Persisten pedidos y modo oscuro; se vuelve a solicitar login, según el ajuste pedido por el usuario. | Parcial: modo oscuro visible; reinicio y persistencia no demostrados. |
 | Rotar la pantalla | Conserva carrito, sesión y datos de pantalla. | Pendiente en emulador |
 
 Comprobaciones adicionales: selector de rol y error de rol incorrecto; CRUD de productos y confirmación de eliminación; cerrar cafetería y bloquear confirmación; persistencia de modo oscuro; cambio de perfil y limpieza de pila. Pendientes de ejecución.
 
 ## Revisión realizada
 
-Se revisaron paquetes, imports internos, contratos de interface/implementación, parámetros, delimitadores, rutas y límites entre capas en los 55 archivos Kotlin. Las 13 consultas SQL se validaron con SQLite sobre un esquema equivalente; la suma vacía devuelve 0.0. No se ejecutaron KSP, Room ni el compilador Kotlin. El aspecto final en dispositivo, las llamadas a APIs de Compose y la integración de navegación requieren la compilación y ejecución del proyecto en Android Studio.
+Se revisaron paquetes, imports internos, contratos de interface/implementación, parámetros, delimitadores, rutas y límites entre capas en los 55 archivos Kotlin. Las 13 consultas SQL se validaron con SQLite sobre un esquema equivalente; la suma vacía devuelve 0.0. No se ejecutaron KSP, Room ni el compilador Kotlin. Las capturas aportadas muestran la interfaz ejecutándose en un dispositivo; no reemplazan las pruebas completas de aceptación ni confirman por sí solas qué revisión se compiló.
 
 Se conservaron los modelos originales, Producto y ProductoDao. La única actualización de dependencias realizada fue Room a 2.7.2. Los cambios se organizaron en commits locales de los pasos del laboratorio y un commit adicional de compatibilidad. La revisión de Git consultó `origin/main` sin hacer push. No se generaron APK ni archivos zip desde el asistente.
 
@@ -163,12 +178,12 @@ Se conservaron los modelos originales, Producto y ProductoDao. La única actuali
 1. Abrir `Semana08/CafeCampus` en Android Studio y sincronizar con la configuración existente.
 2. Elegir el emulador y ejecutar con Run. La compilación y ejecución se realizan desde Android Studio.
 3. Ingresar con la cuenta ficticia del perfil correspondiente.
-4. Completar [las nueve pruebas](docs/PRUEBAS_ACEPTACION.md), registrar el resultado observado y tomar las seis capturas.
-5. Añadir las imágenes al README siguiendo [la guía](docs/capturas/README.md). Solo entonces cambiar los estados pendientes por resultados comprobados.
+4. Completar [las nueve pruebas](docs/PRUEBAS_ACEPTACION.md) y registrar los resultados; complementar las capturas con la confirmación que contenga productos.
+5. Las once imágenes recibidas ya están incorporadas. Cambiar los estados pendientes únicamente al comprobar cada prueba completa.
 
 ## Estado de la entrega
 
-El código y la documentación de arquitectura están registrados. Las capturas y la aceptación completa siguen pendientes de comprobar en el emulador. No se presenta esta práctica como una entrega completamente verificada mientras esas evidencias falten.
+El código, la documentación y once capturas reales están incorporados. Falta una captura de confirmación con productos y completar las pruebas de aceptación que solo tienen evidencia parcial o siguen pendientes. No se presenta la práctica como completamente verificada mientras falten esas comprobaciones.
 
 ## Para pensar
 

@@ -1,39 +1,33 @@
-# Capturas reales pendientes
+# Capturas de CafeCampus
 
-No usar los mockups del PDF como evidencia de la app implementada. No hay capturas de la aplicación generadas todavía.
+Once capturas reales aportadas por la usuaria, conservadas sin retoques y en modo oscuro. El README principal muestra todas las imágenes.
 
-## Cómo obtenerlas
-
-1. Ejecutar la versión actual en el emulador desde Android Studio e ingresar con las cuentas ficticias.
-2. Mostrar cada pantalla de la tabla sin teclado ni diálogos que tapen el contenido.
-3. Usar Take Screenshot (icono de cámara) en el panel del emulador y guardar el PNG en esta carpeta con el nombre indicado. Estos nombres evitan espacios.
-4. En Confirmar y Seguimiento usar un pedido real de prueba. No inventar números, estados ni ventas.
-
-| Archivo | Pantalla |
+| Archivo | Contenido |
 | --- | --- |
-| `01-cliente-menu.png` | Menú con productos |
-| `02-cliente-confirmar.png` | Bolsa con dos productos antes de confirmar |
-| `03-cliente-seguimiento.png` | Pedido confirmado con estado visible |
-| `04-admin-panel.png` | Panel de control |
-| `05-admin-pedidos.png` | Lista de pedidos |
+| `07-cliente-login.png` | Login del estudiante |
+| `01-cliente-menu.png` | Menú del estudiante |
+| `02-cliente-confirmar.png` | Formulario de confirmación con bolsa vacía |
+| `03-cliente-seguimiento.png` | Seguimiento del pedido 0009 |
+| `08-cliente-pedidos.png` | Mis pedidos del estudiante |
+| `09-cliente-perfil.png` | Perfil del estudiante |
+| `04-admin-panel.png` | Panel del administrador |
+| `05-admin-pedidos.png` | Pedidos del administrador |
 | `06-admin-menu.png` | Gestión del menú |
+| `10-admin-editar-producto.png` | Editar producto |
+| `11-admin-ajustes.png` | Ajustes del administrador |
 
-## Insertar en el README
+## Alcance de la evidencia
 
-Cuando existan los seis PNG, agregar este bloque en la sección de capturas del README principal y actualizar los estados de la tabla:
+- Pedido #0009 Recibido con Menú del día y Empanada, total S/ 16.50.
+- Pedido #0008 Listo en Mis pedidos del estudiante y en Pedidos del administrador.
+- Café americano Agotado en ambos menús y botón + deshabilitado en cliente.
+- Panel con S/ 106.50 y 8 pedidos; no acredita por sí solo el cálculo completo de ventas.
+- Modo oscuro y los switches visibles; no acredita persistencia tras reiniciar.
 
-```markdown
-### Estudiante
+## Captura de confirmación
 
-![Menú del estudiante](docs/capturas/01-cliente-menu.png)
-![Confirmar pedido](docs/capturas/02-cliente-confirmar.png)
-![Seguimiento del pedido](docs/capturas/03-cliente-seguimiento.png)
+02-cliente-confirmar.png muestra bolsa vacía y total cero; su título visible es Seguimiento, aunque el contenido es el formulario. No se alteró la imagen ni se la presenta como un seguimiento válido. La captura real de seguimiento es 03-cliente-seguimiento.png. Falta complementar la confirmación con una bolsa que contenga productos.
 
-### Administrador
+## Pruebas pendientes
 
-![Panel de control](docs/capturas/04-admin-panel.png)
-![Pedidos del administrador](docs/capturas/05-admin-pedidos.png)
-![Gestión del menú](docs/capturas/06-admin-menu.png)
-```
-
-Las rutas de este bloque son relativas al README del repositorio para que GitHub las renderice. Guardar las imágenes no reemplaza la ejecución de las nueve pruebas.
+Las capturas no demuestran clave incorrecta, cancelación e historial, cambio de precio histórico, rotación o persistencia tras cerrar la app. La transición en tiempo real y las ventas requieren comprobaciones adicionales. Consultar ../PRUEBAS_ACEPTACION.md.

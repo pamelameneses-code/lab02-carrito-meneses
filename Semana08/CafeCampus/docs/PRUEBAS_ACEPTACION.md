@@ -1,6 +1,6 @@
 # Pruebas de aceptación — CafeCampus
 
-Estado: **pendientes de ejecución en la versión actual**. No marcar OK basándose únicamente en la lectura del código.
+Estado: **once capturas aportadas y revisión visual realizada; pruebas completas aún sin certificar**. No marcar OK basándose únicamente en una imagen o en la lectura del código.
 
 ## Preparación
 
@@ -113,11 +113,17 @@ Resultado observado: pendiente.
 | Nº | Estado | Evidencia/observación |
 | --- | --- | --- |
 | 1 | Pendiente | — |
-| 2 | Pendiente | — |
-| 3 | Pendiente | — |
-| 4 | Pendiente | — |
+| 2 | Parcial | Pedido #0009 Recibido: 1 Menú S/ 12.00 + 1 Empanada S/ 4.50 = S/ 16.50. Captura de bolsa vacía, sin secuencia que pruebe el vaciado tras envío. |
+| 3 | Parcial | Café americano Agotado en cliente/admin y botón + deshabilitado. Falta intento de confirmación con producto agotado. |
+| 4 | Parcial | #0008 Listo en ambos perfiles; #0006 Preparando en estudiante. Falta secuencia de transición sin reinicio. |
 | 5 | Pendiente | — |
 | 6 | Pendiente | — |
-| 7 | Pendiente | — |
-| 8 | Pendiente | — |
+| 7 | Parcial | Panel muestra S/ 106.50 y 8 pedidos. Falta verificar suma y exclusión de cancelados. |
+| 8 | Parcial | Modo oscuro visible; no se muestra cierre/reapertura. |
 | 9 | Pendiente | — |
+
+## Evidencias recibidas
+
+Las once imágenes están en [capturas](capturas/README.md). Revisadas visualmente; no ejecutadas por el asistente. Las pruebas 1, 5, 6 y 9 no tienen evidencia específica y las demás solo evidencia parcial. Ninguna se marca automáticamente como aprobada.
+
+En la confirmación aportada la bolsa está vacía y el botón de confirmar está deshabilitado, lo que documenta ese estado de la interfaz, pero no el envío de un pedido. Además, el título de esa captura dice Seguimiento: se conserva la inconsistencia como observación, sin retocar la imagen.
