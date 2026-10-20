@@ -5,7 +5,9 @@
 
 Aplicación de práctica para pedidos de la cafetería del campus. El estudiante consulta productos, arma su carrito, confirma y sigue sus pedidos. El administrador atiende pedidos, gestiona productos y cambia las preferencias. Ambos perfiles comparten una única base Room local.
 
-Implementación de la Fase 1 (pasos 1 al 12), Kotlin, Jetpack Compose, Material 3, Room, DataStore y Navigation Compose. No incluye las mejoras de la Fase 2. La búsqueda visual del menú y el gráfico de ejemplo del panel no utilizan datos dinámicos.
+Implementación de la Fase 1 (pasos 1 al 12), Kotlin, Jetpack Compose, Material 3, Room, DataStore y Navigation Compose. Incluye las pantallas de la Fase 1 y los ajustes posteriores solicitados durante la práctica: búsqueda funcional y login obligatorio. El buscador filtra nombre, descripción y categoría, combinándose con la categoría seleccionada e ignorando mayúsculas y tildes. El gráfico «Pedidos por hora» usa datos fijos de ejemplo; las ventas y los contadores del panel consultan Room.
+
+La implementación utiliza Room **2.7.2** (runtime, ktx y compiler), actualizado desde 2.6.1 para resolver el error de KSP observado con la configuración del proyecto. Se conservaron las versiones de AGP, Kotlin y KSP.
 
 ## Cuentas ficticias
 
@@ -14,7 +16,9 @@ Implementación de la Fase 1 (pasos 1 al 12), Kotlin, Jetpack Compose, Material 
 | Estudiante | juan@campus.test | 1234 |
 | Administrador | admin@cafe.test | admin |
 
-Los datos se siembran una sola vez, en una transacción, cuando no hay usuarios. El inicio de sesión espera que termine esa inicialización. En modo práctica se puede cambiar de perfil desde Perfil/Ajustes sin volver a introducir credenciales.
+Los datos se siembran una sola vez, en una transacción, cuando no hay usuarios. El inicio de sesión espera que termine esa inicialización. Al abrir una nueva ejecución se solicita correo, contraseña y perfil. «Cambiar de perfil» cierra la sesión actual, selecciona el otro perfil en el login y vuelve a solicitar credenciales. El tema oscuro y la recepción de pedidos siguen persistiendo en DataStore. La rotación conserva la sesión del ViewModel; no se exige iniciar sesión otra vez por rotar.
+
+Estas dos decisiones —pedir credenciales al reabrir/cambiar de perfil y habilitar la búsqueda— son ajustes solicitados durante la práctica y difieren del flujo inicial del PDF. El interruptor Notificaciones guarda una preferencia local; no implementa avisos del sistema Android.
 
 ## Estructura de paquetes
 
@@ -47,12 +51,14 @@ com.tecsup.cafecampus
 ├── ui
 │   ├── admin
 │   │   ├── AjustesScreen.kt
+│   │   ├── ComponentesAdmin.kt
 │   │   ├── DetallePedidoAdminScreen.kt
 │   │   ├── FormularioProductoScreen.kt
 │   │   ├── MenuAdminScreen.kt
 │   │   ├── PanelScreen.kt
 │   │   └── PedidosAdminScreen.kt
 │   ├── cliente
+│   │   ├── ComponentesEstudiante.kt
 │   │   ├── ConfirmarPedidoScreen.kt
 │   │   ├── DetalleProductoScreen.kt
 │   │   ├── LoginScreen.kt
@@ -75,6 +81,7 @@ com.tecsup.cafecampus
 │   └── theme
 │       ├── CafeTheme.kt
 │       ├── Color.kt
+│       ├── IlustracionTheme.kt
 │       ├── Theme.kt
 │       └── Type.kt
 ├── viewmodel
@@ -110,20 +117,26 @@ Lecturas reactivas: Flow transformado a StateFlow con stateIn. Escrituras: suspe
 
 El tema CafeTheme aplica el perfil y el modo oscuro; los colores fijos están centralizados en el tema, incluidos los colores semánticos de estado. Las pantallas consumen MaterialTheme.colorScheme y los colores semánticos provistos por el tema. El tema de plantilla original se conserva para GreetingPreview.
 
-## Capturas pendientes
+## Capturas de la aplicación
 
-El usuario agregará las seis capturas tomadas desde Android Studio/emulador:
+Las seis capturas reales todavía están pendientes. No se sustituyen por los mockups del laboratorio. Guarda los PNG en `docs/capturas/` usando los nombres de esta tabla; la guía explica cómo obtenerlas e insertarlas.
 
-- [ ] Cliente: menú.
-- [ ] Cliente: confirmar pedido.
-- [ ] Cliente: seguimiento.
-- [ ] Administrador: panel.
-- [ ] Administrador: pedidos.
-- [ ] Administrador: gestión del menú o ajustes.
+| Perfil | Pantalla | Archivo previsto | Estado |
+| --- | --- | --- | --- |
+| Estudiante | Menú | `docs/capturas/01-cliente-menu.png` | Pendiente |
+| Estudiante | Confirmar pedido | `docs/capturas/02-cliente-confirmar.png` | Pendiente |
+| Estudiante | Seguimiento | `docs/capturas/03-cliente-seguimiento.png` | Pendiente |
+| Administrador | Panel | `docs/capturas/04-admin-panel.png` | Pendiente |
+| Administrador | Pedidos | `docs/capturas/05-admin-pedidos.png` | Pendiente |
+| Administrador | Gestión del menú | `docs/capturas/06-admin-menu.png` | Pendiente |
+
+[Guía de capturas](docs/capturas/README.md) · [Guía de pruebas de aceptación](docs/PRUEBAS_ACEPTACION.md)
 
 ## Paso 12: pruebas de aceptación
 
-No se ejecutó Gradle ni se compiló o abrió la aplicación. Todas las pruebas del emulador quedan pendientes; una revisión del código no equivale a haberlas aprobado.
+La revisión del asistente no ejecutó Gradle ni compiló el proyecto. El usuario ya abrió versiones de la aplicación en Android Studio, pero no se dispone de evidencia suficiente para marcar las nueve pruebas como aprobadas. En el último intento de revisión visual, el emulador mostraba la pantalla de arranque de Android; no se obtuvieron capturas de las pantallas ni se completaron pruebas. Una revisión del código no equivale a una prueba aprobada.
+
+La guía enlazada indica pasos, resultados esperados y evidencias para completar cada prueba sin borrar los datos del dispositivo.
 
 | Prueba | Resultado esperado | Estado |
 | --- | --- | --- |
@@ -134,16 +147,28 @@ No se ejecutó Gradle ni se compiló o abrió la aplicación. Todas las pruebas 
 | Administrador cancela un pedido | Aparece CANCELADO en el historial del estudiante. | Pendiente en emulador |
 | Administrador cambia el precio de un producto | Los pedidos anteriores conservan nombre y precio unitario. | Pendiente en emulador |
 | Ventas del día | Suma pedidos del día no cancelados. | Pendiente en emulador |
-| Cerrar y abrir la aplicación | Persisten pedidos, perfil y modo oscuro. | Pendiente en emulador |
+| Cerrar y abrir la aplicación | Persisten pedidos y modo oscuro; se vuelve a solicitar login, según el ajuste pedido por el usuario. | Pendiente en emulador |
 | Rotar la pantalla | Conserva carrito, sesión y datos de pantalla. | Pendiente en emulador |
 
 Comprobaciones adicionales: selector de rol y error de rol incorrecto; CRUD de productos y confirmación de eliminación; cerrar cafetería y bloquear confirmación; persistencia de modo oscuro; cambio de perfil y limpieza de pila. Pendientes de ejecución.
 
 ## Revisión realizada
 
-Se revisaron paquetes, imports internos, contratos de interface/implementación, parámetros, delimitadores, rutas y límites entre capas en los 52 archivos Kotlin. Las 13 consultas SQL se validaron con SQLite sobre un esquema equivalente; la suma vacía devuelve 0.0. No se ejecutaron KSP, Room ni el compilador Kotlin. El aspecto final en dispositivo, las llamadas a APIs de Compose y la integración de navegación requieren la compilación y ejecución del proyecto en Android Studio.
+Se revisaron paquetes, imports internos, contratos de interface/implementación, parámetros, delimitadores, rutas y límites entre capas en los 55 archivos Kotlin. Las 13 consultas SQL se validaron con SQLite sobre un esquema equivalente; la suma vacía devuelve 0.0. No se ejecutaron KSP, Room ni el compilador Kotlin. El aspecto final en dispositivo, las llamadas a APIs de Compose y la integración de navegación requieren la compilación y ejecución del proyecto en Android Studio.
 
-No se alteraron configuración Gradle, versiones, modelos originales, Producto o ProductoDao. No se ejecutaron operaciones Git ni se generaron APK o archivos zip durante esta implementación.
+Se conservaron los modelos originales, Producto y ProductoDao. La única actualización de dependencias realizada fue Room a 2.7.2. Los cambios se organizaron en commits locales de los pasos del laboratorio y un commit adicional de compatibilidad. La revisión de Git consultó `origin/main` sin hacer push. No se generaron APK ni archivos zip desde el asistente.
+
+## Ejecutar y validar
+
+1. Abrir `Semana08/CafeCampus` en Android Studio y sincronizar con la configuración existente.
+2. Elegir el emulador y ejecutar con Run. La compilación y ejecución se realizan desde Android Studio.
+3. Ingresar con la cuenta ficticia del perfil correspondiente.
+4. Completar [las nueve pruebas](docs/PRUEBAS_ACEPTACION.md), registrar el resultado observado y tomar las seis capturas.
+5. Añadir las imágenes al README siguiendo [la guía](docs/capturas/README.md). Solo entonces cambiar los estados pendientes por resultados comprobados.
+
+## Estado de la entrega
+
+El código y la documentación de arquitectura están registrados. Las capturas y la aceptación completa siguen pendientes de comprobar en el emulador. No se presenta esta práctica como una entrega completamente verificada mientras esas evidencias falten.
 
 ## Para pensar
 
