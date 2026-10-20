@@ -42,7 +42,10 @@ Rutas.PANEL to "Panel") else listOf(Rutas.MENU to "Menú" )
                 NavHost(nav,startDestination=Rutas.LOGIN,modifier=Modifier.padding(padding)) {
                     composable(Rutas.LOGIN) {LoginScreen(sesion)}
                     composable(Rutas.SPLASH) {SplashScreen({nav.navigate(Rutas.LOGIN)},{nav.navigate(Rutas.LOGIN)})}
-                    composable(Rutas.MENU) {MenuScreen(menu,{})}
+                    composable(Rutas.MENU) {MenuScreen(menu,sesion,{nav.navigate(Rutas.producto(it))},{})}
+                    composable(Rutas.PRODUCTO,arguments=listOf(navArgument("id") {type=NavType.IntType})) {e ->
+                        DetalleProductoScreen(menu,e.arguments!!.getInt("id")) {nav.popBackStack()}
+                    }
                     composable(Rutas.PANEL) {Text("El panel se implementa en el Paso 9")}
                 }
             }
