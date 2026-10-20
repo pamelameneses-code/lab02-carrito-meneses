@@ -12,6 +12,7 @@ import com.tecsup.cafecampus.viewmodel.*
 import com.tecsup.cafecampus.ui.cliente.*
 import com.tecsup.cafecampus.ui.components.*
 import com.tecsup.cafecampus.ui.theme.CafeTheme
+import com.tecsup.cafecampus.ui.admin.*
 
 @Composable fun NavCafe(app: CafeApp) {
     val factory = remember(app) {CafeViewModelFactory(app)}
@@ -26,6 +27,8 @@ import com.tecsup.cafecampus.ui.theme.CafeTheme
     val admin = usuario?.rol==Rol.ADMIN.name
     val clienteFactory = remember(app,usuario?.id) {CafeViewModelFactory(app,usuario?.id ?: 0)}
     val pedidosCliente: PedidosClienteViewModel = viewModel(key="pedidos-${usuario?.id ?: 0}",factory=clienteFactory)
+    val panel: PanelAdminViewModel = viewModel(factory=factory)
+    val pedidosAdmin: PedidosAdminViewModel = viewModel(factory=factory)
     CafeTheme(if(admin) Rol.ADMIN else Rol.CLIENTE,oscuro) {
         if(!listo) CircularProgressIndicator() else {
             LaunchedEffect(usuario?.id) {
@@ -35,7 +38,7 @@ import com.tecsup.cafecampus.ui.theme.CafeTheme
             val entrada by nav.currentBackStackEntryAsState()
             val ruta = entrada?.destination?.route
             val tabs = if(admin) listOf(
-Rutas.PANEL to "Panel") else listOf(Rutas.MENU to "Menú",Rutas.MIS_PEDIDOS to "Pedidos" )
+Rutas.PANEL to "Panel",Rutas.PEDIDOS_ADMIN to "Pedidos") else listOf(Rutas.MENU to "Menú",Rutas.MIS_PEDIDOS to "Pedidos" )
             Scaffold(topBar={if(usuario!=null) AppTopBar("CafeCampus", {nav.popBackStack(); Unit})},
                 bottomBar={if(usuario!=null) Row {
                     tabs.forEach {(destino,titulo) -> TextButton(onClick={nav.navigate(destino) {launchSingleTop=true}}) {Text(titulo)}}
@@ -55,7 +58,8 @@ Rutas.PANEL to "Panel") else listOf(Rutas.MENU to "Menú",Rutas.MIS_PEDIDOS to "
                     composable(Rutas.SEGUIMIENTO,arguments=listOf(navArgument("id") {type=NavType.IntType})) {e ->
                         SeguimientoScreen(pedidosCliente,e.arguments!!.getInt("id"))
                     }
-                    composable(Rutas.PANEL) {Text("El panel se implementa en el Paso 9")}
+                    composable(Rutas.PANEL) {PanelScreen(panel,onPedido={},onVerTodos={nav.navigate(Rutas.PEDIDOS_ADMIN)})}
+                    composable(Rutas.PEDIDOS_ADMIN) {PedidosAdminScreen(pedidosAdmin,{})}
                 }
             }
         }
