@@ -1,4 +1,5 @@
 package com.tecsup.cafecampus.viewmodel
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.tecsup.cafecampus.CafeApp
@@ -10,6 +11,7 @@ class CafeViewModelFactory(private val app: CafeApp, private val clienteId: Int 
             PedidosClienteViewModel::class.java -> PedidosClienteViewModel(app.repository,clienteId,app.preferencias)
             PanelAdminViewModel::class.java -> PanelAdminViewModel(app.repository)
             PedidosAdminViewModel::class.java -> PedidosAdminViewModel(app.repository)
+            MenuAdminViewModel::class.java -> MenuAdminViewModel(app.repository)
             else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
         }
         @Suppress("UNCHECKED_CAST") return vm as T

@@ -29,6 +29,7 @@ import com.tecsup.cafecampus.ui.admin.*
     val pedidosCliente: PedidosClienteViewModel = viewModel(key="pedidos-${usuario?.id ?: 0}",factory=clienteFactory)
     val panel: PanelAdminViewModel = viewModel(factory=factory)
     val pedidosAdmin: PedidosAdminViewModel = viewModel(factory=factory)
+    val menuAdmin: MenuAdminViewModel = viewModel(factory=factory)
     CafeTheme(if(admin) Rol.ADMIN else Rol.CLIENTE,oscuro) {
         if(!listo) CircularProgressIndicator() else {
             LaunchedEffect(usuario?.id) {
@@ -38,7 +39,7 @@ import com.tecsup.cafecampus.ui.admin.*
             val entrada by nav.currentBackStackEntryAsState()
             val ruta = entrada?.destination?.route
             val tabs = if(admin) listOf(
-Rutas.PANEL to "Panel",Rutas.PEDIDOS_ADMIN to "Pedidos") else listOf(Rutas.MENU to "Menú",Rutas.MIS_PEDIDOS to "Pedidos" )
+Rutas.PANEL to "Panel",Rutas.PEDIDOS_ADMIN to "Pedidos",Rutas.MENU_ADMIN to "Menú") else listOf(Rutas.MENU to "Menú",Rutas.MIS_PEDIDOS to "Pedidos" )
             Scaffold(topBar={if(usuario!=null) AppTopBar("CafeCampus", {nav.popBackStack(); Unit})},
                 bottomBar={if(usuario!=null) Row {
                     tabs.forEach {(destino,titulo) -> TextButton(onClick={nav.navigate(destino) {launchSingleTop=true}}) {Text(titulo)}}
@@ -58,8 +59,17 @@ Rutas.PANEL to "Panel",Rutas.PEDIDOS_ADMIN to "Pedidos") else listOf(Rutas.MENU 
                     composable(Rutas.SEGUIMIENTO,arguments=listOf(navArgument("id") {type=NavType.IntType})) {e ->
                         SeguimientoScreen(pedidosCliente,e.arguments!!.getInt("id"))
                     }
-                    composable(Rutas.PANEL) {PanelScreen(panel,onPedido={},onVerTodos={nav.navigate(Rutas.PEDIDOS_ADMIN)})}
-                    composable(Rutas.PEDIDOS_ADMIN) {PedidosAdminScreen(pedidosAdmin,{})}
+                    composable(Rutas.PANEL) {PanelScreen(panel,onPedido={nav.navigate(Rutas.detalleAdmin(it))},onVerTodos={nav.navigate(Rutas.PEDIDOS_ADMIN)})}
+                    composable(Rutas.PEDIDOS_ADMIN) {PedidosAdminScreen(pedidosAdmin,{nav.navigate(Rutas.detalleAdmin(it))})}
+                    composable(Rutas.DETALLE_ADMIN,arguments=listOf(navArgument("id") {type=NavType.IntType})) {e ->
+                        DetallePedidoAdminScreen(pedidosAdmin,e.arguments!!.getInt("id"))
+                    }
+                    composable(Rutas.MENU_ADMIN) {MenuAdminScreen(menuAdmin) {id ->
+                        menuAdmin.consumirGuardado(); nav.navigate(Rutas.formulario(id))
+                    }}
+                    composable(Rutas.FORMULARIO,arguments=listOf(navArgument("id") {type=NavType.IntType; defaultValue=0})) {e ->
+                        FormularioProductoScreen(menuAdmin,e.arguments!!.getInt("id").takeIf {it!=0},onGuardado={nav.popBackStack()},onCancelar={nav.popBackStack()})
+                    }
                 }
             }
         }
