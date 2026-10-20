@@ -7,6 +7,7 @@ class CafeViewModelFactory(private val app: CafeApp, private val clienteId: Int 
         val vm: ViewModel = when(modelClass) {
             SesionViewModel::class.java -> SesionViewModel(app.repository,app.preferencias,app.inicializacion)
             MenuViewModel::class.java -> MenuViewModel(app.repository)
+            PedidosClienteViewModel::class.java -> PedidosClienteViewModel(app.repository,clienteId,app.preferencias)
             else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
         }
         @Suppress("UNCHECKED_CAST") return vm as T
