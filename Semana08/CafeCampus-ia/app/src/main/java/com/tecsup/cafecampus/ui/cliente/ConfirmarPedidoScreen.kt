@@ -64,10 +64,6 @@ import com.tecsup.cafecampus.viewmodel.*
                 }
             }
         }
-        aviso?.let {mensaje -> TarjetaEstudiante {
-            Text(mensaje,fontSize=12.sp)
-            TextButton(onClick=menu::cerrarAvisoCarrito) {Text("Entendido")}
-        } }
         TarjetaEstudiante {
             Row {Text("Subtotal",Modifier.weight(1f),fontSize=12.sp,color=MaterialTheme.colorScheme.onSurfaceVariant);Text(dinero(menu.total()),fontSize=12.sp,fontWeight=FontWeight.SemiBold)}
             Row {Text("Servicio",Modifier.weight(1f),fontSize=12.sp,color=MaterialTheme.colorScheme.onSurfaceVariant);Text(dinero(0.0),fontSize=12.sp,fontWeight=FontWeight.SemiBold)}
