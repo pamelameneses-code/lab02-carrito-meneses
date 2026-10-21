@@ -38,7 +38,7 @@ import com.tecsup.cafecampus.viewmodel.*
             if(items.isEmpty()) Text("Tu bolsa está vacía",fontSize=13.sp)
             items.forEachIndexed { index,item ->
                 Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-                    ImagenProducto(item.producto.fotoUri,item.producto.icono,Modifier.size(48.dp))
+                    ImagenProducto(item.producto.fotoUri,item.producto.icono,Modifier.size(48.dp),nombre=item.producto.nombre)
                     Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
                         Text(item.producto.nombre,fontSize=12.sp,fontWeight=FontWeight.Bold)
                         Text("x${item.cantidad}",fontSize=11.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)

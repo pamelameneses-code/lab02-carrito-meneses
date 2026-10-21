@@ -39,7 +39,7 @@ import com.tecsup.cafecampus.data.local.entity.Producto
             };error?.let {Text(it,color=MaterialTheme.colorScheme.error,fontSize=12.sp)}}
             items(productos,key={it.id}) {p -> TarjetaAdmin {
                 Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(9.dp)) {
-                    ImagenProducto(p.fotoUri,p.icono,Modifier.size(64.dp))
+                    ImagenProducto(p.fotoUri,p.icono,Modifier.size(64.dp),nombre=p.nombre)
                     Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(5.dp)) {
                         Text(p.nombre,fontSize=12.sp,fontWeight=FontWeight.Bold,maxLines=2)
                         Text("${vm.etiquetaCategoria(p.categoria)} · ${dinero(p.precio)}",fontSize=10.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)

@@ -25,7 +25,7 @@ import com.tecsup.cafecampus.viewmodel.*
     var nota by rememberSaveable(id) {mutableStateOf("")}
     if(producto==null) {Text("Producto no disponible",Modifier.padding(16.dp));return}
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
-        ImagenProducto(producto.fotoUri,producto.icono,Modifier.fillMaxWidth().height(180.dp))
+        ImagenProducto(producto.fotoUri,producto.icono,Modifier.fillMaxWidth().height(180.dp),nombre=producto.nombre)
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
             Text(producto.nombre,Modifier.weight(1f),fontSize=21.sp,fontWeight=FontWeight.Bold)
             Text(dinero(producto.precio),color=MaterialTheme.colorScheme.primary,fontSize=17.sp,fontWeight=FontWeight.Bold)

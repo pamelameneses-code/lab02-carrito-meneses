@@ -65,3 +65,16 @@ La búsqueda ya existía y hubo que ampliarla sin atribuirla como una implementa
 Se detectó un aviso duplicado y se corrigió durante la revisión de la interfaz.
 Flow permite que consultas y pantallas reaccionen a pedidos, cancelaciones y cambios de productos.
 La revisión estática y SQLite ayudan, pero hacen falta pruebas reales en Android antes de afirmar que todo funciona.
+
+
+## Ampliación — fotografías aportadas por la usuaria
+
+**Solicitud literal:** «ahi estas imagenes implentalo tambien a donde le pertenece».
+
+**Archivos aportados:** empanada.png, chicha-morada.webp, sandwich-de-pollo.webp, zumo-naranja.jpg, CAFE.jpg y mnu.jpg.
+
+**Resultado:** seis recursos drawable-nodpi asociados por nombre a Empanada, Chicha morada, Sándwich de pollo, Jugo de naranja, Café americano y Menú del día. Se conservaron los originales sin retoques. La foto de galería tiene prioridad; Usar ilustración guarda esa elección explícita. La visualización funciona también en registros ya existentes, sin resembra ni migración adicional.
+
+**MVVM:** la asociación es de presentación en ImagenProducto. No se modificaron entidades, DAOs, Repository ni lógica de negocio. Main y versiones conservados.
+
+**Revisión:** integridad SHA-256 origen/destino, seis recursos válidos para Android, enlaces R.drawable y sitios de llamada revisados. No se compiló ni se verificó el resultado en dispositivo.

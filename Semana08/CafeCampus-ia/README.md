@@ -12,7 +12,7 @@ Base de la Fase 1 más las mejoras de la **Fase 2**, en la rama `mejora-ia` y ca
 - **Búsqueda:** texto y categorías combinados con Solo disponibles, múltiples palabras, tildes/mayúsculas normalizadas y limpieza de filtros. La base ya tenía búsqueda funcional; este commit la amplía.
 - **Repetir pedido:** botón en Historial, confirmación si hay una bolsa existente, catálogo y precios actuales, avisos de productos omitidos y revisión antes de confirmar.
 - **Gráfico real:** consulta Room por hora local y día, Flow hasta la pantalla, 24 horas, sin cancelados y con actualización al cambiar de día. El gráfico ya no contiene la serie fija de ejemplo.
-- **Fotos adicionales:** el administrador puede elegir una foto de galería y guardarla en el producto. Se muestra en ambos menús, detalle y bolsa; conserva la ilustración si no hay foto.
+- **Fotos adicionales:** el administrador puede elegir una foto de galería y guardarla en el producto. Se muestra en ambos menús, detalle y bolsa. Los seis productos iniciales incluyen las fotos proporcionadas por la usuaria; para otros productos conserva la ilustración si no hay foto.
 
 [PROMPTS.md](PROMPTS.md) documenta la herramienta real utilizada, instrucciones, correcciones, arquitectura y límites de validación.
 
@@ -203,9 +203,9 @@ El código, la documentación y once capturas reales están incorporados. Falta 
 1. **Buscar:** en el menú del estudiante escribir `cafe`, `americano cafe` o parte del nombre. Cambiar categoría y Solo disponibles; Limpiar búsqueda y filtros restaura Todo.
 2. **Repetir:** en Mis pedidos → Historial pulsar Repetir pedido. Confirmar el reemplazo si la bolsa no está vacía. Revisar avisos y total actualizado en Confirmar pedido; elegir hora/pago y confirmar expresamente.
 3. **Gráfico:** como administrador, crear/avanzar/cancelar pedidos y observar las barras del día actual. Deslizar horizontalmente para consultar las 24 horas.
-4. **Fotos:** Administrador → Menú → editar o agregar producto → tocar Imagen del producto → seleccionar una foto en el selector del teléfono → esperar la vista previa → Guardar producto. Quitar foto/Usar ilustración restaura el dibujo.
+4. **Fotos:** Administrador → Menú → editar o agregar producto → tocar Imagen del producto → seleccionar una foto en el selector del teléfono → esperar la vista previa → Guardar producto. Quitar foto restaura la foto incluida; Usar ilustración muestra el dibujo.
 
-Las fotos se copian al espacio privado de la app: no requieren conexión, permisos amplios ni enlaces externos. Se aceptan imágenes decodificables de hasta 20 MB y se reducen antes de almacenarlas. No se incluyen fotos nuevas en los productos existentes hasta que el administrador las seleccione. Las fotos elegidas en el teléfono no se suben a GitHub. La app conserva el mismo applicationId y migra su base a versión 2: esta base actualizada no es compatible con la versión 1 del código de main; volver a instalar la Fase 1 requiere planificar los datos de ese dispositivo.
+Las fotos se copian al espacio privado de la app: no requieren conexión, permisos amplios ni enlaces externos. Se aceptan imágenes decodificables de hasta 20 MB y se reducen antes de almacenarlas. Los seis productos iniciales muestran las fotos incluidas por su nombre sin cambiar registros existentes. Una foto de galería tiene prioridad; Quitar foto restaura la incluida y Usar ilustración permite elegir el dibujo. Si se renombra el producto y ya no coincide con los seis nombres iniciales, solo se usará su foto de galería o ilustración. Las fotos elegidas en el teléfono no se suben a GitHub. La app conserva el mismo applicationId y migra su base a versión 2: esta base actualizada no es compatible con la versión 1 del código de main; volver a instalar la Fase 1 requiere planificar los datos de ese dispositivo.
 
 ### Validación pendiente en Android
 
@@ -219,3 +219,19 @@ No se ejecutó Gradle ni se compiló esta Fase 2. Verificar en Android Studio b�
 2. crearPedido es suspend porque realiza una acción; observarPedidosCliente es Flow porque avisa cada vez que cambian los pedidos.
 3. Con bases distintas, el administrador y el estudiante verían pedidos diferentes y el seguimiento no reflejaría los cambios.
 4. Con un servidor, se implementaría el mismo contrato con una fuente remota y se resolverían red, autenticación y errores en la capa de datos.
+
+
+## Fotos incluidas de los productos
+
+Se incorporaron las seis imágenes proporcionadas por la usuaria como recursos locales en `app/src/main/res/drawable-nodpi/`, conservando los archivos originales sin retoques. Se ven sin internet y no requieren volver a sembrar datos ni reinstalar la app.
+
+| Producto | Recurso |
+| --- | --- |
+| Empanada | `foto_empanada.png` |
+| Chicha morada | `foto_chicha_morada.webp` |
+| Sándwich de pollo | `foto_sandwich_pollo.webp` |
+| Jugo de naranja | `foto_jugo_naranja.jpg` |
+| Café americano | `foto_cafe_americano.jpg` |
+| Menú del día | `foto_menu_dia.jpg` |
+
+La selección por nombre pertenece al componente visual; no usa DAOs ni altera precios o pedidos. La elección manual de foto o ilustración desde el formulario conserva prioridad. Las imágenes proceden de archivos aportados por la usuaria; no se atribuye al asistente su autoría ni una licencia de terceros que no se haya proporcionado.

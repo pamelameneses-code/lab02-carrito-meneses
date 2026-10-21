@@ -17,9 +17,9 @@ Estado: pendientes en Android Studio. No se ejecutó Gradle ni el emulador desde
 | Foto | Editar producto y elegir una foto de galería; guardar | Vista previa y foto en menús de ambos perfiles, detalle y bolsa | Pendiente |
 | Reinicio de foto | Cerrar y abrir, volver a ingresar | Foto conservada aunque no exista un permiso temporal activo de galería | Pendiente |
 | Cancelar selector | Abrir galería y volver sin elegir | Conserva foto anterior; no guarda ni crea producto | Pendiente |
-| Quitar foto | Quitar foto, guardar y revisar cliente | Aparece la ilustración anterior | Pendiente |
+| Quitar foto | Quitar foto, guardar y revisar cliente | Aparece la foto incluida del producto; Usar ilustración permite volver al dibujo | Pendiente |
 | Formato/tamaño | Seleccionar archivo no decodificable o mayor a 20 MB | Error controlado sin cerrar la app ni guardar producto incompleto | Pendiente |
-| Migración | Instalar actualización sobre datos de Fase 1 sin desinstalar | Conserva usuarios, productos y pedidos; las fotos inician vacías | Pendiente |
+| Migración | Instalar actualización sobre datos de Fase 1 sin desinstalar | Conserva usuarios, productos y pedidos; fotoUri inicia vacío y los seis productos iniciales muestran sus fotos incluidas | Pendiente |
 
 ## Comprobaciones realizadas fuera de Android
 

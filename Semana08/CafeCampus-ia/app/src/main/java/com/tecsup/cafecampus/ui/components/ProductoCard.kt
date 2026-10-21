@@ -26,7 +26,7 @@ fun dinero(valor: Double): String = String.format(Locale.forLanguageTag("es-PE")
 }
 @Composable fun ProductoCard(p: Producto, onAgregar: () -> Unit = {}, onClick: () -> Unit) {
     CafeCard(Modifier.clickable(onClick=onClick)) {
-        ImagenProducto(p.fotoUri,p.icono,Modifier.fillMaxWidth().height(90.dp))
+        ImagenProducto(p.fotoUri,p.icono,Modifier.fillMaxWidth().height(90.dp),nombre=p.nombre)
         Text(p.nombre,style=MaterialTheme.typography.titleSmall,minLines=2)
         Text(p.categoria,style=MaterialTheme.typography.bodySmall)
         Row(verticalAlignment=Alignment.CenterVertically) {

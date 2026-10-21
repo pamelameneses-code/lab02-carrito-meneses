@@ -63,7 +63,7 @@ import androidx.activity.result.contract.ActivityResultContracts
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).imePadding().padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         Surface(onClick={if(!importandoFoto) galeria.launch(arrayOf("image/*"))},color=MaterialTheme.colorScheme.primaryContainer.copy(alpha=.45f),shape=RoundedCornerShape(14.dp)) {
             Row(Modifier.fillMaxWidth().padding(12.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(14.dp)) {
-                ImagenProducto(fotoUri,icono,Modifier.size(58.dp))
+                ImagenProducto(fotoUri,icono,Modifier.size(58.dp),nombre=nombre)
                 Column(verticalArrangement=Arrangement.spacedBy(4.dp)) {
                     Text("Imagen del producto",fontSize=12.sp,fontWeight=FontWeight.Bold,color=MaterialTheme.colorScheme.primary)
                     Text(if(importandoFoto) "Cargando foto…" else "Toca para elegir una foto de tu galería",fontSize=10.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)
@@ -71,8 +71,8 @@ import androidx.activity.result.contract.ActivityResultContracts
             }
         }
         Row(horizontalArrangement=Arrangement.spacedBy(12.dp)) {
-            TextButton(onClick={fotoUri=null;elegirIcono=true},enabled=!importandoFoto) {Text("Usar ilustración",fontSize=11.sp)}
-            if(fotoUri!=null) TextButton(onClick={fotoUri=null},enabled=!importandoFoto) {Text("Quitar foto",fontSize=11.sp)}
+            TextButton(onClick={fotoUri=FOTO_SOLO_ILUSTRACION;elegirIcono=true},enabled=!importandoFoto) {Text("Usar ilustración",fontSize=11.sp)}
+            if(fotoUri!=null) TextButton(onClick={fotoUri=null},enabled=!importandoFoto) {Text(if(fotoUri==FOTO_SOLO_ILUSTRACION) "Restaurar foto incluida" else "Quitar foto",fontSize=11.sp)}
         }
         CampoProductoAdmin(nombre,{nombre=it},"Nombre del producto")
         Box {
