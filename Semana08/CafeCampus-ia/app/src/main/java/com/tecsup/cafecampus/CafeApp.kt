@@ -9,7 +9,7 @@ class CafeApp : Application() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     val database by lazy { CafeDatabase.obtener(this) }
     val preferencias by lazy { PreferenciasStore(this) }
-    val repository: CafeRepository by lazy { CafeRepositoryRoom(database) }
+    val repository: CafeRepository by lazy { CafeRepositoryRoom(database, AlmacenFotos(this)) }
     lateinit var inicializacion: Deferred<Unit>
         private set
     override fun onCreate() {

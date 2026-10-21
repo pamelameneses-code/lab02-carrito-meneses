@@ -25,8 +25,25 @@ class MenuAdminViewModel(private val repo: CafeRepository) : ViewModel() {
     val error = _error.asStateFlow()
     private val _guardado = MutableStateFlow(false)
     val guardado = _guardado.asStateFlow()
+    private val _fotoImportada = MutableStateFlow<String?>(null)
+    val fotoImportada = _fotoImportada.asStateFlow()
+    private val _importandoFoto = MutableStateFlow(false)
+    val importandoFoto = _importandoFoto.asStateFlow()
+    private var trabajoFoto: Job? = null
+    fun importarFoto(origen: String) {
+        if(_importandoFoto.value) return
+        _importandoFoto.value=true
+        trabajoFoto=viewModelScope.launch {
+            try {_error.value=null;_fotoImportada.value=repo.importarFoto(origen)}
+            catch(e: Exception) {if(e is CancellationException) throw e;_error.value=e.message ?: "No se pudo cargar esa foto"}
+            finally {_importandoFoto.value=false}
+        }
+    }
+    fun consumirFoto() {_fotoImportada.value=null}
+    fun cancelarImportacionFoto() {trabajoFoto?.cancel();trabajoFoto=null;_importandoFoto.value=false;_fotoImportada.value=null}
     fun consumirGuardado() { _guardado.value = false; _error.value = null }
     fun guardar(producto: Producto) {
+        if(_importandoFoto.value) {_error.value="Espera a que termine de cargar la foto";return}
         if(producto.nombre.isBlank() || !producto.precio.isFinite() || producto.precio <= 0) {
             _error.value = "Nombre obligatorio y precio mayor que 0"; return
         }

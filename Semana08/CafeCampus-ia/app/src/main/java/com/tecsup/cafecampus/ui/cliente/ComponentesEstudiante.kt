@@ -103,7 +103,7 @@ import java.util.Locale
     Surface(onClick=onDetalle,shape=RoundedCornerShape(12.dp),color=MaterialTheme.colorScheme.surface,
         border=BorderStroke(1.dp,MaterialTheme.colorScheme.outlineVariant),modifier=Modifier.fillMaxWidth()) {
         Column(Modifier.padding(6.dp).height(194.dp)) {
-            IlustracionProducto(p.icono,Modifier.fillMaxWidth().height(72.dp))
+            ImagenProducto(p.fotoUri,p.icono,Modifier.fillMaxWidth().height(72.dp))
             Text(p.nombre,modifier=Modifier.padding(horizontal=4.dp,vertical=8.dp),fontSize=12.sp,fontWeight=FontWeight.Bold,maxLines=2,overflow=TextOverflow.Ellipsis)
             Spacer(Modifier.weight(1f))
             if(!p.disponible) Text("Agotado",Modifier.padding(start=4.dp),color=MaterialTheme.colorScheme.error,fontSize=10.sp)

@@ -1,15 +1,17 @@
 package com.tecsup.cafecampus.data.repository
 
 import androidx.room.withTransaction
+import com.tecsup.cafecampus.data.local.AlmacenFotos
 import com.tecsup.cafecampus.data.local.CafeDatabase
 import com.tecsup.cafecampus.data.local.entity.*
 import com.tecsup.cafecampus.model.*
 import kotlinx.coroutines.flow.first
-class CafeRepositoryRoom(private val db: CafeDatabase) : CafeRepository {
+class CafeRepositoryRoom(private val db: CafeDatabase, private val fotos: AlmacenFotos) : CafeRepository {
     override suspend fun login(correo: String, clave: String) = db.usuarioDao().login(correo, clave)
     override suspend fun usuario(id: Int) = db.usuarioDao().buscar(id)
     override suspend fun usuarioPorRol(rol: Rol) = db.usuarioDao().porRol(rol.name)
     override fun observarProductos() = db.productoDao().observarTodos()
+    override suspend fun importarFoto(origen: String) = fotos.importar(origen)
     override suspend fun guardarProducto(p: Producto) {
         if (p.id == 0) db.productoDao().insertar(p) else db.productoDao().actualizar(p)
     }
