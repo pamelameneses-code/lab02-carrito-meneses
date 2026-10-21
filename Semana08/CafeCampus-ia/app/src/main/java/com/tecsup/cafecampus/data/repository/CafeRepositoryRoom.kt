@@ -33,6 +33,7 @@ class CafeRepositoryRoom(private val db: CafeDatabase) : CafeRepository {
     override fun observarPedidosPorEstado(estado: EstadoPedido) = db.pedidoDao().observarPorEstado(estado.name)
     override fun observarPedido(id: Int) = db.pedidoDao().observarUno(id)
     override suspend fun cambiarEstado(pedidoId: Int, estado: EstadoPedido) = db.pedidoDao().cambiarEstado(pedidoId, estado.name)
+    override fun observarPedidosPorHora(inicioDia: Long, finDia: Long) = db.pedidoDao().pedidosPorHora(inicioDia,finDia)
     override fun observarVentasHoy(inicioDia: Long) = db.pedidoDao().ventasDesde(inicioDia)
     override fun observarCantidadPorEstado(estado: EstadoPedido) = db.pedidoDao().cantidadPorEstado(estado.name)
 }

@@ -26,8 +26,16 @@ import com.tecsup.cafecampus.viewmodel.*
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.platform.LocalDensity
 
 @Composable fun PanelScreen(vm: PanelAdminViewModel, onPedido: (Int) -> Unit, onVerTodos: () -> Unit = {}) {
+    val horas by vm.pedidosPorHora.collectAsState()
+    val desplazamiento = rememberScrollState()
+    val densidad = LocalDensity.current
+    LaunchedEffect(desplazamiento.maxValue) {
+        val destino=with(densidad) {((vm.horaActual-3).coerceAtLeast(0)*48).dp.roundToPx()}
+        desplazamiento.scrollTo(destino.coerceAtMost(desplazamiento.maxValue))
+    }
     val nuevos by vm.nuevos.collectAsState()
     val preparando by vm.preparando.collectAsState()
     val listos by vm.listos.collectAsState()
@@ -65,14 +73,18 @@ import androidx.compose.foundation.lazy.items
         } }
         item { Text("Pedidos por hora",fontSize=14.sp,fontWeight=FontWeight.Bold) }
         item { TarjetaAdmin {
-            // Serie fija de ejemplo de la Fase 1; las ventas y los contadores sí son reales.
-            Row(Modifier.fillMaxWidth().height(106.dp),horizontalArrangement=Arrangement.SpaceAround,verticalAlignment=Alignment.Bottom) {
-                listOf(3,6,9,5,7).forEachIndexed {i,n -> Column(horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(3.dp)) {
-                    Text(n.toString(),fontSize=10.sp)
-                    Box(Modifier.width(32.dp).height((n*8).dp).background(MaterialTheme.colorScheme.primary.copy(alpha=if(i==2) 1f else .35f),RoundedCornerShape(5.dp)))
-                    Text("${8+i}h",fontSize=10.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            val maximo=(horas.maxOfOrNull {it.cantidad} ?: 0).coerceAtLeast(1)
+            Text("Hoy · pedidos no cancelados",fontSize=10.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            if(horas.all {it.cantidad==0}) Text("Todavía no hay pedidos hoy",fontSize=12.sp)
+            Row(Modifier.fillMaxWidth().horizontalScroll(desplazamiento).height(130.dp),verticalAlignment=Alignment.Bottom) {
+                horas.forEach {punto -> Column(Modifier.width(48.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                    Text(punto.cantidad.toString(),fontSize=10.sp)
+                    Box(Modifier.width(28.dp).height(if(punto.cantidad==0) 2.dp else (punto.cantidad.toFloat()/maximo*86).dp)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha=if(punto.cantidad==maximo) 1f else .5f),RoundedCornerShape(5.dp)))
+                    Text("${punto.hora}h",fontSize=10.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)
                 } }
             }
+            Text("Desliza para ver las 24 horas",fontSize=10.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)
         } }
         item { Row(verticalAlignment=Alignment.CenterVertically) {
             Text("Nuevos pedidos",Modifier.weight(1f),fontSize=14.sp,fontWeight=FontWeight.Bold)
