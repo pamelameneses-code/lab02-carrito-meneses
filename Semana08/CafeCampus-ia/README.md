@@ -1,11 +1,20 @@
-# CafeCampus
+# CafeCampus-ia
 
 
 ## Descripción
 
 Aplicación de práctica para pedidos de la cafetería del campus. El estudiante consulta productos, arma su carrito, confirma y sigue sus pedidos. El administrador atiende pedidos, gestiona productos y cambia las preferencias. Ambos perfiles comparten una única base Room local.
 
-Implementación de la Fase 1 (pasos 1 al 12), Kotlin, Jetpack Compose, Material 3, Room, DataStore y Navigation Compose. Incluye las pantallas de la Fase 1 y los ajustes posteriores solicitados durante la práctica: búsqueda funcional y login obligatorio. El buscador filtra nombre, descripción y categoría, combinándose con la categoría seleccionada e ignorando mayúsculas y tildes. El gráfico «Pedidos por hora» usa datos fijos de ejemplo; las ventas y los contadores del panel consultan Room.
+Base de la Fase 1 más las mejoras de la **Fase 2**, en la rama `mejora-ia` y carpeta `Semana08/CafeCampus-ia`. Kotlin, Jetpack Compose, Material 3, Room, DataStore y Navigation Compose. La rama `main` conserva la Fase 1 en `Semana08/CafeCampus`.
+
+### Mejoras con IA
+
+- **Búsqueda:** texto y categorías combinados con Solo disponibles, múltiples palabras, tildes/mayúsculas normalizadas y limpieza de filtros. La base ya tenía búsqueda funcional; este commit la amplía.
+- **Repetir pedido:** botón en Historial, confirmación si hay una bolsa existente, catálogo y precios actuales, avisos de productos omitidos y revisión antes de confirmar.
+- **Gráfico real:** consulta Room por hora local y día, Flow hasta la pantalla, 24 horas, sin cancelados y con actualización al cambiar de día. El gráfico ya no contiene la serie fija de ejemplo.
+- **Fotos adicionales:** el administrador puede elegir una foto de galería y guardarla en el producto. Se muestra en ambos menús, detalle y bolsa; conserva la ilustración si no hay foto.
+
+[PROMPTS.md](PROMPTS.md) documenta la herramienta real utilizada, instrucciones, correcciones, arquitectura y límites de validación.
 
 La implementación utiliza Room **2.7.2** (runtime, ktx y compiler), actualizado desde 2.6.1 para resolver el error de KSP observado con la configuración del proyecto. Se conservaron las versiones de AGP, Kotlin y KSP.
 
@@ -37,6 +46,7 @@ com.tecsup.cafecampus
 │   │   │   └── Usuario.kt
 │   │   ├── relation
 │   │   │   └── PedidoConDetalle.kt
+│   │   ├── AlmacenFotos.kt
 │   │   ├── CafeDatabase.kt
 │   │   └── DatosIniciales.kt
 │   ├── prefs
@@ -47,6 +57,8 @@ com.tecsup.cafecampus
 ├── model
 │   ├── EstadoPedido.kt
 │   ├── ItemCarrito.kt
+│   ├── PedidosPorHora.kt
+│   ├── ResultadoRepeticion.kt
 │   └── Rol.kt
 ├── ui
 │   ├── admin
@@ -71,6 +83,7 @@ com.tecsup.cafecampus
 │   │   ├── CafeButton.kt
 │   │   ├── CafeTextField.kt
 │   │   ├── EstadoChip.kt
+│   │   ├── ImagenProducto.kt
 │   │   ├── PedidoCard.kt
 │   │   ├── ProductoCard.kt
 │   │   ├── ProductoIcono.kt
@@ -119,7 +132,7 @@ El tema CafeTheme aplica el perfil y el modo oscuro; los colores fijos están ce
 
 ## Capturas de la aplicación
 
-Capturas reales proporcionadas por la usuaria, en modo oscuro. Se incluyen las seis vistas principales solicitadas y cinco vistas adicionales; los archivos originales no fueron retocados.
+Capturas reales de la **Fase 1** proporcionadas por la usuaria, en modo oscuro. Las capturas de las nuevas mejoras de la Fase 2 quedan pendientes tras ejecutarla en Android. Se incluyen las seis vistas principales solicitadas y cinco vistas adicionales; los archivos originales no fueron retocados.
 
 ### Estudiante
 
@@ -169,13 +182,13 @@ Comprobaciones adicionales: selector de rol y error de rol incorrecto; CRUD de p
 
 ## Revisión realizada
 
-Se revisaron paquetes, imports internos, contratos de interface/implementación, parámetros, delimitadores, rutas y límites entre capas en los 55 archivos Kotlin. Las 13 consultas SQL se validaron con SQLite sobre un esquema equivalente; la suma vacía devuelve 0.0. No se ejecutaron KSP, Room ni el compilador Kotlin. Las capturas aportadas muestran la interfaz ejecutándose en un dispositivo; no reemplazan las pruebas completas de aceptación ni confirman por sí solas qué revisión se compiló.
+Se revisaron paquetes, imports internos, contratos de interface/implementación, parámetros, delimitadores, rutas y límites entre capas en los 59 archivos Kotlin. Las 14 consultas SQL se validaron con SQLite sobre un esquema equivalente; la suma vacía devuelve 0.0. No se ejecutaron KSP, Room ni el compilador Kotlin. Las capturas aportadas muestran la interfaz ejecutándose en un dispositivo; no reemplazan las pruebas completas de aceptación ni confirman por sí solas qué revisión se compiló.
 
-Se conservaron los modelos originales, Producto y ProductoDao. La única actualización de dependencias realizada fue Room a 2.7.2. Los cambios se organizaron en commits locales de los pasos del laboratorio y un commit adicional de compatibilidad. La revisión de Git consultó `origin/main` sin hacer push. No se generaron APK ni archivos zip desde el asistente.
+Se conservaron los modelos originales, Producto y ProductoDao. La actualización de dependencias realizada durante la Fase 1 fue Room a 2.7.2. En la Fase 2 no se cambiaron versiones ni archivos de configuración Gradle. El esquema Room pasa de 1 a 2 con migración aditiva de fotoUri, sin migración destructiva. Los cambios se organizaron en commits locales de los pasos del laboratorio y un commit adicional de compatibilidad. La revisión de Git consultó `origin/main` sin hacer push. No se generaron APK ni archivos zip desde el asistente.
 
 ## Ejecutar y validar
 
-1. Abrir `Semana08/CafeCampus` en Android Studio y sincronizar con la configuración existente.
+1. Abrir `Semana08/CafeCampus-ia` en Android Studio y sincronizar con la configuración existente.
 2. Elegir el emulador y ejecutar con Run. La compilación y ejecución se realizan desde Android Studio.
 3. Ingresar con la cuenta ficticia del perfil correspondiente.
 4. Completar [las nueve pruebas](docs/PRUEBAS_ACEPTACION.md) y registrar los resultados; complementar las capturas con la confirmación que contenga productos.
@@ -184,6 +197,21 @@ Se conservaron los modelos originales, Producto y ProductoDao. La única actuali
 ## Estado de la entrega
 
 El código, la documentación y once capturas reales están incorporados. Falta una captura de confirmación con productos y completar las pruebas de aceptación que solo tienen evidencia parcial o siguen pendientes. No se presenta la práctica como completamente verificada mientras falten esas comprobaciones.
+
+## Usar las mejoras de la Fase 2
+
+1. **Buscar:** en el menú del estudiante escribir `cafe`, `americano cafe` o parte del nombre. Cambiar categoría y Solo disponibles; Limpiar búsqueda y filtros restaura Todo.
+2. **Repetir:** en Mis pedidos → Historial pulsar Repetir pedido. Confirmar el reemplazo si la bolsa no está vacía. Revisar avisos y total actualizado en Confirmar pedido; elegir hora/pago y confirmar expresamente.
+3. **Gráfico:** como administrador, crear/avanzar/cancelar pedidos y observar las barras del día actual. Deslizar horizontalmente para consultar las 24 horas.
+4. **Fotos:** Administrador → Menú → editar o agregar producto → tocar Imagen del producto → seleccionar una foto en el selector del teléfono → esperar la vista previa → Guardar producto. Quitar foto/Usar ilustración restaura el dibujo.
+
+Las fotos se copian al espacio privado de la app: no requieren conexión, permisos amplios ni enlaces externos. Se aceptan imágenes decodificables de hasta 20 MB y se reducen antes de almacenarlas. No se incluyen fotos nuevas en los productos existentes hasta que el administrador las seleccione. Las fotos elegidas en el teléfono no se suben a GitHub. La app conserva el mismo applicationId y migra su base a versión 2: esta base actualizada no es compatible con la versión 1 del código de main; volver a instalar la Fase 1 requiere planificar los datos de ese dispositivo.
+
+### Validación pendiente en Android
+
+No se ejecutó Gradle ni se compiló esta Fase 2. Verificar en Android Studio búsqueda, repetición con agotados/eliminados, confirmación de reemplazo, actualización del gráfico y su día local, selección/cancelación de fotos, persistencia tras reiniciar y migración conservando los pedidos. También comprobar la carga de fotos en productos editados y su visualización desde el estudiante.
+
+[Plan de pruebas de Fase 2](docs/PRUEBAS_FASE2.md). Los resultados de SQL y revisión estática se documentan en PROMPTS.md; no se presentan como pruebas Android aprobadas.
 
 ## Para pensar
 
