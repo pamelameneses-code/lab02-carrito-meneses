@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.*
 @Composable fun MenuScreen(vm: MenuViewModel, sesion: SesionViewModel, onProducto: (Int) -> Unit, onBolsa: () -> Unit) {
     val productos by vm.filtrados.collectAsState()
     val busqueda by vm.busqueda.collectAsState()
+    val disponibles by vm.soloDisponibles.collectAsState()
     val categoria by vm.categoria.collectAsState()
     val carrito by vm.carrito.collectAsState()
     val usuario by sesion.usuarioActual.collectAsState()
@@ -54,8 +55,16 @@ import androidx.compose.foundation.lazy.grid.*
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
             vm.categorias.forEach { (valor,etiqueta) -> FiltroEstudiante(etiqueta,categoria==valor,{vm.categoria.value=valor}) }
         }
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+            FilterChip(selected=disponibles,onClick={vm.filtrarDisponibles(!disponibles)},label={Text("Solo disponibles",fontSize=11.sp)})
+            Spacer(Modifier.weight(1f))
+            Text("${productos.size} resultados",fontSize=11.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         Text(if(busqueda.isBlank()) "Populares hoy" else "Resultados de búsqueda",fontSize=14.sp,fontWeight=FontWeight.Bold,modifier=Modifier.padding(top=4.dp))
-        if(busqueda.isNotBlank() && productos.isEmpty()) Text("No se encontraron productos. Prueba otra palabra o la categoría Todo.",fontSize=12.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)
+        if(productos.isEmpty()) Column(verticalArrangement=Arrangement.spacedBy(4.dp)) {
+            Text("No se encontraron productos con estos filtros.",fontSize=12.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            TextButton(onClick=vm::limpiarFiltros) {Text("Limpiar búsqueda y filtros")}
+        }
         LazyVerticalGrid(columns=GridCells.Fixed(2),modifier=Modifier.weight(1f),
             horizontalArrangement=Arrangement.spacedBy(10.dp),verticalArrangement=Arrangement.spacedBy(10.dp),contentPadding=PaddingValues(bottom=12.dp)) {
             items(productos,key={it.id}) { p -> TarjetaProductoEstudiante(p,{vm.agregar(p,1,"")},{onProducto(p.id)}) }
