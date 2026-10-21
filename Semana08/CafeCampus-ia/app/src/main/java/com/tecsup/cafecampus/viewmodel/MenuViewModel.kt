@@ -46,7 +46,42 @@ class MenuViewModel(private val repo: CafeRepository) : ViewModel() {
             } else lista + ItemCarrito(actual,cantidad,nota)
         }
     }
+    private val _repitiendo = MutableStateFlow(false)
+    val repitiendo = _repitiendo.asStateFlow()
+    private val _repeticion = MutableStateFlow<ResultadoRepeticion?>(null)
+    val repeticion = _repeticion.asStateFlow()
+    private val _avisoCarrito = MutableStateFlow<String?>(null)
+    val avisoCarrito = _avisoCarrito.asStateFlow()
+    fun consumirRepeticion() { _repeticion.value = null }
+    fun cerrarAvisoCarrito() { _avisoCarrito.value = null }
+    fun repetirPedido(pedido: PedidoConDetalle) {
+        if(_repitiendo.value) return
+        _repitiendo.value = true
+        _repeticion.value = null
+        viewModelScope.launch {
+            try {
+                val actuales = repo.observarProductos().first().associateBy {it.id}
+                val disponibles = pedido.detalles.filter {actuales[it.productoId]?.disponible == true && it.cantidad > 0}
+                val omitidos = pedido.detalles.filterNot {it in disponibles}.map {it.nombreProducto}
+                if(disponibles.isEmpty()) {
+                    _repeticion.value = ResultadoRepeticion(false,"Los productos de este pedido ya no están disponibles. Tu bolsa se conserva.")
+                } else {
+                    val nuevos = disponibles.groupBy {it.productoId}.map { (id,lineas) ->
+                        ItemCarrito(producto=actuales.getValue(id),cantidad=lineas.sumOf {it.cantidad})
+                    }
+                    _carrito.value = nuevos
+                    val aviso = if(omitidos.isEmpty()) "Pedido cargado con precios actuales. Revisa el total y confirma el pago."
+                        else "Se omitieron productos agotados o eliminados: ${omitidos.joinToString()}. Se aplican los precios actuales."
+                    _avisoCarrito.value = aviso
+                    _repeticion.value = ResultadoRepeticion(true,aviso)
+                }
+            } catch(e: Exception) {
+                if(e is CancellationException) throw e
+                _repeticion.value = ResultadoRepeticion(false,"No se pudo repetir el pedido. Tu bolsa se conserva.")
+            } finally { _repitiendo.value = false }
+        }
+    }
     fun quitar(productoId: Int) { _carrito.update { it.filterNot { i -> i.producto.id == productoId } } }
-    fun vaciar() { _carrito.value = emptyList() }
+    fun vaciar() { _carrito.value = emptyList(); _avisoCarrito.value = null; _repeticion.value = null }
     fun total(): Double = _carrito.value.sumOf { it.subtotal }
 }

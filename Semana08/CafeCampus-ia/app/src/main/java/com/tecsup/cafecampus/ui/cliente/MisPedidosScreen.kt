@@ -20,10 +20,20 @@ import com.tecsup.cafecampus.viewmodel.*
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import com.tecsup.cafecampus.data.local.relation.PedidoConDetalle
 
-@Composable fun MisPedidosScreen(vm: PedidosClienteViewModel, onPedido: (Int) -> Unit) {
+@Composable fun MisPedidosScreen(vm: PedidosClienteViewModel, menu: MenuViewModel, onPedido: (Int) -> Unit, onRepetido: () -> Unit) {
     val visibles by vm.visibles.collectAsState()
     val activos by vm.mostrarActivos.collectAsState()
+    val carrito by menu.carrito.collectAsState()
+    val repitiendo by menu.repitiendo.collectAsState()
+    val resultado by menu.repeticion.collectAsState()
+    var pendiente by remember {mutableStateOf<PedidoConDetalle?>(null)}
+    LaunchedEffect(resultado) {if(resultado?.exito==true) {menu.consumirRepeticion();onRepetido()}}
+    pendiente?.let {p -> AlertDialog(onDismissRequest={pendiente=null},title={Text("Reemplazar la bolsa")},
+        text={Text("Tu bolsa contiene productos. ¿Reemplazarla por este pedido con precios actuales? Si no queda ningún producto disponible, tu bolsa se conservará.")},
+        confirmButton={TextButton(onClick={pendiente=null;menu.repetirPedido(p)}) {Text("Repetir pedido")}},
+        dismissButton={TextButton(onClick={pendiente=null}) {Text("Cancelar")}})}
     Column(Modifier.fillMaxSize().padding(16.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
         Surface(shape=RoundedCornerShape(12.dp),color=MaterialTheme.colorScheme.surfaceVariant.copy(alpha=.5f)) {
             Row(Modifier.fillMaxWidth().padding(4.dp)) {
@@ -37,6 +47,7 @@ import androidx.compose.foundation.lazy.items
                 }
             }
         }
+        resultado?.takeIf {!it.exito}?.let {Text(it.mensaje,fontSize=12.sp,color=MaterialTheme.colorScheme.error)}
         if(visibles.isEmpty()) Text("No hay pedidos en esta sección",fontSize=13.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)
         LazyColumn(verticalArrangement=Arrangement.spacedBy(10.dp),contentPadding=PaddingValues(bottom=12.dp)) {
             items(visibles,key={it.pedido.id}) {p ->
@@ -50,6 +61,10 @@ import androidx.compose.foundation.lazy.items
                     Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
                         ChipEstadoEstudiante(EstadoPedido.valueOf(p.pedido.estado))
                         Text(dinero(p.pedido.total),fontSize=13.sp,fontWeight=FontWeight.Bold,color=MaterialTheme.colorScheme.primary)
+                    }
+                    if(!activos) OutlinedButton(onClick={if(carrito.isNotEmpty()) pendiente=p else menu.repetirPedido(p)},enabled=!repitiendo,modifier=Modifier.fillMaxWidth(),shape=RoundedCornerShape(10.dp)) {
+                        Icon(Icons.Default.Replay,null,Modifier.size(16.dp));Spacer(Modifier.width(6.dp))
+                        Text(if(repitiendo) "Cargando…" else "Repetir pedido",fontSize=12.sp)
                     }
                 }
             }

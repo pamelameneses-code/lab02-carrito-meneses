@@ -105,7 +105,9 @@ private data class Destino(val ruta: String, val titulo: String, val icono: Imag
                         composable(Rutas.LOGIN) { LoginScreen(sesion) }
                         navigation(startDestination=Rutas.MENU,route=Rutas.CLIENTE) {
                             composable(Rutas.MENU) { MenuScreen(menu,sesion,{nav.navigate(Rutas.producto(it))},{nav.navigate(Rutas.CONFIRMAR)}) }
-                            composable(Rutas.MIS_PEDIDOS) { MisPedidosScreen(pedidosCliente) {nav.navigate(Rutas.seguimiento(it))} }
+                            composable(Rutas.MIS_PEDIDOS) { MisPedidosScreen(pedidosCliente,menu,
+                                onPedido={nav.navigate(Rutas.seguimiento(it))},
+                                onRepetido={nav.navigate(Rutas.CONFIRMAR) {launchSingleTop=true}}) }
                             composable(Rutas.PERFIL) { AjustesScreen(sesion,sesion::cambiarPerfil,sesion::cerrarSesion) }
                             composable(Rutas.PRODUCTO,arguments=listOf(navArgument("id"){type=NavType.IntType})) { entry ->
                                 DetalleProductoScreen(menu,entry.arguments!!.getInt("id")) {nav.popBackStack()}

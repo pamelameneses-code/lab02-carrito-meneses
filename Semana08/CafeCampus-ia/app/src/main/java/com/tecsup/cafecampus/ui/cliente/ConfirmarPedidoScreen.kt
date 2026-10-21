@@ -20,6 +20,7 @@ import com.tecsup.cafecampus.viewmodel.*
 
 @Composable fun ConfirmarPedidoScreen(vm: PedidosClienteViewModel, menu: MenuViewModel, onConfirmado: (Int) -> Unit, onSeguir: () -> Unit) {
     val items by menu.carrito.collectAsState()
+    val aviso by menu.avisoCarrito.collectAsState()
     val abierto by vm.recibirPedidos.collectAsState()
     val error by vm.error.collectAsState()
     val enviando by vm.enviando.collectAsState()
@@ -29,6 +30,10 @@ import com.tecsup.cafecampus.viewmodel.*
     var pago by rememberSaveable {mutableStateOf("CAJA")}
     LaunchedEffect(creado) {creado?.let {menu.vaciar();vm.consumirCreado();onConfirmado(it.toInt())}}
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+        aviso?.let {mensaje -> TarjetaEstudiante {
+            Text(mensaje,fontSize=12.sp)
+            TextButton(onClick=menu::cerrarAvisoCarrito) {Text("Entendido")}
+        } }
         TarjetaEstudiante {
             if(items.isEmpty()) Text("Tu bolsa está vacía",fontSize=13.sp)
             items.forEachIndexed { index,item ->
@@ -59,6 +64,10 @@ import com.tecsup.cafecampus.viewmodel.*
                 }
             }
         }
+        aviso?.let {mensaje -> TarjetaEstudiante {
+            Text(mensaje,fontSize=12.sp)
+            TextButton(onClick=menu::cerrarAvisoCarrito) {Text("Entendido")}
+        } }
         TarjetaEstudiante {
             Row {Text("Subtotal",Modifier.weight(1f),fontSize=12.sp,color=MaterialTheme.colorScheme.onSurfaceVariant);Text(dinero(menu.total()),fontSize=12.sp,fontWeight=FontWeight.SemiBold)}
             Row {Text("Servicio",Modifier.weight(1f),fontSize=12.sp,color=MaterialTheme.colorScheme.onSurfaceVariant);Text(dinero(0.0),fontSize=12.sp,fontWeight=FontWeight.SemiBold)}
