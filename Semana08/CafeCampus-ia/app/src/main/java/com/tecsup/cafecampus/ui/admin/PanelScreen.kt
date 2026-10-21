@@ -28,7 +28,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.platform.LocalDensity
 
-@Composable fun PanelScreen(vm: PanelAdminViewModel, onPedido: (Int) -> Unit, onVerTodos: () -> Unit = {}) {
+@Composable fun PanelScreen(vm: PanelAdminViewModel, onPedido: (Int) -> Unit, onVerTodos: () -> Unit = {}, notificacionesActivas: Boolean = true) {
     val horas by vm.pedidosPorHora.collectAsState()
     val desplazamiento = rememberScrollState()
     val densidad = LocalDensity.current
@@ -49,7 +49,20 @@ import androidx.compose.ui.platform.LocalDensity
                 Text("Panel de control",fontSize=23.sp,fontWeight=FontWeight.Bold)
                 Text("Cafetería · Hoy",fontSize=12.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Icon(Icons.Default.Notifications,null,Modifier.padding(8.dp).size(22.dp))
+            IconButton(onClick=onVerTodos) {
+                BadgedBox(badge={
+                    if(notificacionesActivas && nuevos>0) Badge {
+                        Text(if(nuevos>99) "99+" else nuevos.toString())
+                    }
+                }) {
+                    Icon(
+                        if(notificacionesActivas) Icons.Default.Notifications else Icons.Default.NotificationsOff,
+                        contentDescription=if(notificacionesActivas) "$nuevos pedidos nuevos. Ver pedidos" else "Notificaciones desactivadas. Ver pedidos",
+                        modifier=Modifier.size(24.dp),
+                        tint=if(notificacionesActivas && nuevos>0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         } }
         item { Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
             listOf(Triple("Nuevos",nuevos,EstadoPedido.RECIBIDO),Triple("Preparando",preparando,EstadoPedido.PREPARANDO),Triple("Listos",listos,EstadoPedido.LISTO)).forEach { (titulo,n,estado) ->

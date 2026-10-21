@@ -22,19 +22,35 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.items
 
 @Composable fun SplashScreen(onComenzar: () -> Unit, onLogin: () -> Unit) {
-    Column(Modifier.fillMaxSize().padding(32.dp),verticalArrangement=Arrangement.Center,horizontalAlignment=Alignment.CenterHorizontally) {
-        ProductoIcono("cafe",Modifier.size(140.dp))
-        Spacer(Modifier.height(24.dp))
-        Text("CafeCampus",style=MaterialTheme.typography.headlineLarge,color=MaterialTheme.colorScheme.primary)
-        Text("Tu cafetería, a un toque")
-        Spacer(Modifier.height(16.dp))
-        Text("Pide desde el campus y recoge sin hacer cola.")
-        Spacer(Modifier.height(24.dp))
-        Row(horizontalArrangement=Arrangement.spacedBy(12.dp)) {
-            listOf("cafe","plato","jugo").forEach { ProductoIcono(it,Modifier.size(80.dp)) }
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val altura=maxHeight
+        Column(
+            Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).heightIn(min=altura).padding(24.dp),
+            verticalArrangement=Arrangement.SpaceBetween,
+            horizontalAlignment=Alignment.CenterHorizontally
+        ) {
+            Column(Modifier.fillMaxWidth().padding(top=48.dp),horizontalAlignment=Alignment.CenterHorizontally) {
+                Surface(shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.primary) {
+                    Box(Modifier.size(112.dp),contentAlignment=Alignment.Center) {
+                        Icon(Icons.Default.LocalCafe,"Logo de CafeCampus",Modifier.size(64.dp),tint=MaterialTheme.colorScheme.onPrimary)
+                    }
+                }
+                Spacer(Modifier.height(28.dp))
+                Text("CafeCampus",style=MaterialTheme.typography.headlineLarge)
+                Text("Pide sin hacer cola",color=MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Row(Modifier.padding(vertical=36.dp),horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                listOf("cafe","plato","jugo").forEach { icono ->
+                    Surface(shape=RoundedCornerShape(20.dp),color=MaterialTheme.colorScheme.primaryContainer) {
+                        IlustracionProducto(icono,Modifier.size(80.dp))
+                    }
+                }
+            }
+            Column(Modifier.fillMaxWidth(),horizontalAlignment=Alignment.CenterHorizontally) {
+                CafeButton("Comenzar",onComenzar,Modifier.fillMaxWidth())
+                Spacer(Modifier.height(8.dp))
+                TextButton(onClick=onLogin) {Text("Ya tengo una cuenta")}
+            }
         }
-        Spacer(Modifier.height(40.dp))
-        CafeButton("Comenzar",onComenzar,Modifier.fillMaxWidth())
-        TextButton(onClick=onLogin) { Text("Ya tengo una cuenta") }
     }
 }

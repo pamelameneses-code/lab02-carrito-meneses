@@ -30,6 +30,7 @@ private data class Destino(val ruta: String, val titulo: String, val icono: Imag
     val menu: MenuViewModel = viewModel(factory=factory)
     val usuario by sesion.usuarioActual.collectAsState()
     val oscuro by sesion.modoOscuro.collectAsState()
+    val notificaciones by sesion.notificaciones.collectAsState()
     val cargando by sesion.cargando.collectAsState()
     var inicializado by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(cargando) { if(!cargando) inicializado=true }
@@ -100,7 +101,7 @@ private data class Destino(val ruta: String, val titulo: String, val icono: Imag
                         }
                     }
                 ) { padding ->
-                    NavHost(navController=nav,startDestination=Rutas.LOGIN,modifier=Modifier.padding(padding)) {
+                    NavHost(navController=nav,startDestination=Rutas.SPLASH,modifier=Modifier.padding(padding)) {
                         composable(Rutas.SPLASH) { SplashScreen({nav.navigate(Rutas.LOGIN)},{nav.navigate(Rutas.LOGIN)}) }
                         composable(Rutas.LOGIN) { LoginScreen(sesion) }
                         navigation(startDestination=Rutas.MENU,route=Rutas.CLIENTE) {
@@ -118,7 +119,7 @@ private data class Destino(val ruta: String, val titulo: String, val icono: Imag
                             composable(Rutas.SEGUIMIENTO,arguments=listOf(navArgument("id"){type=NavType.IntType})) { entry -> SeguimientoScreen(pedidosCliente,entry.arguments!!.getInt("id")) }
                         }
                         navigation(startDestination=Rutas.PANEL,route=Rutas.ADMIN) {
-                            composable(Rutas.PANEL) { PanelScreen(panel,onPedido={nav.navigate(Rutas.detalleAdmin(it))},onVerTodos={
+                            composable(Rutas.PANEL) { PanelScreen(panel,notificacionesActivas=notificaciones,onPedido={nav.navigate(Rutas.detalleAdmin(it))},onVerTodos={
                                 pedidosAdmin.estadoSeleccionado.value=com.tecsup.cafecampus.model.EstadoPedido.RECIBIDO
                                 nav.navigate(Rutas.PEDIDOS_ADMIN) {launchSingleTop=true}
                             }) }
