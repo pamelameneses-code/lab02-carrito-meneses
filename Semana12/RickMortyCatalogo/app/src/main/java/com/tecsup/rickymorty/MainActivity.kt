@@ -11,7 +11,7 @@ import com.tecsup.rickymorty.ui.navigation.AppNav
 import com.tecsup.rickymorty.ui.theme.RickMortyCatalogoTheme
 
 class MainActivity : ComponentActivity() {
-    private val container by lazy { AppContainer(applicationContext) }
+    private val container get() = (application as CatalogoApplication).container
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
