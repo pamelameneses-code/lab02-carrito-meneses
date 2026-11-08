@@ -30,7 +30,7 @@ class AppContainer(context: Context) {
     val factory: ViewModelProvider.Factory = viewModelFactory {
         initializer { LoginViewModel(auth) }
         initializer { AdminViewModel(items, notificador) }
-        initializer { ListaViewModel(items, notificador) }
+        initializer { ListaViewModel(items, notificador, createSavedStateHandle()) }
         initializer { FavoritosViewModel(items) }
         initializer { DetalleViewModel(items, checkNotNull(createSavedStateHandle().get<Int>("id"))) }
     }

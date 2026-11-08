@@ -8,8 +8,13 @@ import com.tecsup.rickymorty.domain.model.Item
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-class FavoritosViewModel(repo: ItemRepository) : ViewModel() {
+class FavoritosViewModel(private val repo: ItemRepository) : ViewModel() {
     val estado = repo.favoritos.map<List<Item>, UiState<List<Item>>> { UiState.Exito(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UiState.Cargando)
+
+    fun alternarFavorito(id: Int) {
+        viewModelScope.launch { repo.alternarFavorito(id) }
+    }
 }
