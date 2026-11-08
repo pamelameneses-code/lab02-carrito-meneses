@@ -4,8 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import com.tecsup.rickymorty.ui.favoritos.FavoritosScreen
-import com.tecsup.rickymorty.ui.favoritos.FavoritosViewModel
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -15,18 +14,46 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.tecsup.rickymorty.domain.model.Sesion
+import com.tecsup.rickymorty.ui.UiState
+import com.tecsup.rickymorty.ui.components.Cargando
 import com.tecsup.rickymorty.ui.detalle.DetalleScreen
 import com.tecsup.rickymorty.ui.detalle.DetalleViewModel
+import com.tecsup.rickymorty.ui.favoritos.FavoritosScreen
+import com.tecsup.rickymorty.ui.favoritos.FavoritosViewModel
 import com.tecsup.rickymorty.ui.lista.ListaScreen
 import com.tecsup.rickymorty.ui.lista.ListaViewModel
+import com.tecsup.rickymorty.ui.login.LoginScreen
+import com.tecsup.rickymorty.ui.login.LoginViewModel
 
 @Composable
 fun AppNav(factory: ViewModelProvider.Factory, modifier: Modifier = Modifier) {
+    val login: LoginViewModel = viewModel(factory = factory)
+    when (val estado = login.estado.collectAsStateWithLifecycle().value) {
+        UiState.Cargando -> Column(modifier) { Cargando() }
+        is UiState.Error -> LoginScreen(estado.mensaje, login::iniciarSesion, modifier)
+        is UiState.Exito -> {
+            val sesion = estado.datos
+            if (sesion == null) LoginScreen(null, login::iniciarSesion, modifier)
+            else key(sesion.uid) { CatalogoNav(factory, sesion, login::cerrarSesion, modifier) }
+        }
+    }
+}
+
+@Composable
+private fun CatalogoNav(
+    factory: ViewModelProvider.Factory,
+    sesion: Sesion,
+    cerrarSesion: () -> Unit,
+    modifier: Modifier
+) {
     val nav = rememberNavController()
     NavHost(nav, startDestination = "lista", modifier = modifier) {
         composable("lista") {
             val vm: ListaViewModel = viewModel(factory = factory)
             Column {
+                Text("Sesión: ${sesion.correo}")
+                TextButton(onClick = cerrarSesion) { Text("Cerrar sesión") }
                 TextButton(onClick = { nav.navigate("favoritos") }) { Text("Favoritos") }
                 vm.aviso.collectAsStateWithLifecycle().value?.let {
                     Text("$it Mostrando datos guardados.")
