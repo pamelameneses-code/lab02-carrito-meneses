@@ -15,6 +15,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.rickymorty.domain.model.Sesion
+import com.tecsup.rickymorty.domain.model.Rol
+import com.tecsup.rickymorty.ui.admin.AdminScreen
+import com.tecsup.rickymorty.ui.admin.AdminViewModel
 import com.tecsup.rickymorty.ui.UiState
 import com.tecsup.rickymorty.ui.components.Cargando
 import com.tecsup.rickymorty.ui.detalle.DetalleScreen
@@ -54,6 +57,9 @@ private fun CatalogoNav(
             Column {
                 Text("Sesión: ${sesion.correo}")
                 TextButton(onClick = cerrarSesion) { Text("Cerrar sesión") }
+                if (sesion.rol == Rol.ADMIN) {
+                    TextButton(onClick = { nav.navigate("admin") }) { Text("Panel Admin") }
+                }
                 TextButton(onClick = { nav.navigate("favoritos") }) { Text("Favoritos") }
                 vm.aviso.collectAsStateWithLifecycle().value?.let {
                     Text("$it Mostrando datos guardados.")
@@ -63,6 +69,19 @@ private fun CatalogoNav(
                     vm.estado.collectAsStateWithLifecycle().value,
                     reintentar = vm::refrescar,
                     abrir = { nav.navigate("detalle/$it") }
+                )
+            }
+        }
+        if (sesion.rol == Rol.ADMIN) {
+            composable("admin") {
+                val vm: AdminViewModel = viewModel(factory = factory)
+                AdminScreen(
+                    vm.estado.collectAsStateWithLifecycle().value,
+                    vm.ocupado.collectAsStateWithLifecycle().value,
+                    vm.mensaje.collectAsStateWithLifecycle().value,
+                    { nav.popBackStack() },
+                    vm::sincronizar,
+                    vm::limpiarCache
                 )
             }
         }

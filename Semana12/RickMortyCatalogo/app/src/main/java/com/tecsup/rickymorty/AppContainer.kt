@@ -2,6 +2,7 @@ package com.tecsup.rickymorty
 
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
+import com.tecsup.rickymorty.ui.admin.AdminViewModel
 import com.tecsup.rickymorty.data.auth.FirebaseAuthRepository
 import com.tecsup.rickymorty.ui.login.LoginViewModel
 import com.tecsup.rickymorty.ui.favoritos.FavoritosViewModel
@@ -25,6 +26,7 @@ class AppContainer(context: Context) {
 
     val factory: ViewModelProvider.Factory = viewModelFactory {
         initializer { LoginViewModel(auth) }
+        initializer { AdminViewModel(items) }
         initializer { ListaViewModel(items) }
         initializer { FavoritosViewModel(items) }
         initializer { DetalleViewModel(items, checkNotNull(createSavedStateHandle().get<Int>("id"))) }
