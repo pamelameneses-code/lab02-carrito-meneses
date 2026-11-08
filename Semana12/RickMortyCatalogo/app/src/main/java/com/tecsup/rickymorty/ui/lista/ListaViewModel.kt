@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.tecsup.rickymorty.data.repository.ItemRepository
 import com.tecsup.rickymorty.domain.model.Item
 import com.tecsup.rickymorty.ui.UiState
+import com.tecsup.rickymorty.notification.Notificador
 import com.tecsup.rickymorty.ui.components.mensajeDeDatos
 import java.io.IOException
 import kotlinx.coroutines.Job
@@ -15,7 +16,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class ListaViewModel(private val repo: ItemRepository) : ViewModel() {
+class ListaViewModel(private val repo: ItemRepository, private val notificador: Notificador) : ViewModel() {
     private val actualizacion = MutableStateFlow<UiState<Unit>>(UiState.Cargando)
     val estado: StateFlow<UiState<List<Item>>> = combine(repo.items, actualizacion) { items, carga ->
         when {
@@ -39,7 +40,10 @@ class ListaViewModel(private val repo: ItemRepository) : ViewModel() {
         consulta = viewModelScope.launch {
             actualizacion.value = UiState.Cargando
             actualizacion.value = repo.refrescar().fold(
-                onSuccess = { UiState.Exito(Unit) },
+                onSuccess = { n ->
+                    notificador.mostrar("Datos actualizados", "Se guardaron $n elementos")
+                    UiState.Exito(Unit)
+                },
                 onFailure = {
                     val mensaje = if (it is IOException) "Sin conexión."
                     else mensajeDeDatos(it)

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.tecsup.rickymorty.data.repository.ItemRepository
 import com.tecsup.rickymorty.data.repository.resultado
 import com.tecsup.rickymorty.ui.UiState
+import com.tecsup.rickymorty.notification.Notificador
 import com.tecsup.rickymorty.ui.components.mensajeDeDatos
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,7 +16,7 @@ import kotlinx.coroutines.launch
 
 data class TotalesAdmin(val guardados: Int, val favoritos: Int)
 
-class AdminViewModel(private val repo: ItemRepository) : ViewModel() {
+class AdminViewModel(private val repo: ItemRepository, private val notificador: Notificador) : ViewModel() {
     val estado = repo.items.map { items ->
         val totales: UiState<TotalesAdmin> = UiState.Exito(TotalesAdmin(items.size, items.count { it.esFavorito }))
         totales
@@ -27,7 +28,11 @@ class AdminViewModel(private val repo: ItemRepository) : ViewModel() {
     val mensaje = _mensaje.asStateFlow()
 
     fun sincronizar() = ejecutar {
-        repo.refrescar().map { n -> "Se guardaron $n elementos." }
+        repo.refrescar().map { n ->
+            val texto = "Se guardaron $n elementos"
+            notificador.mostrar("Datos actualizados", texto)
+            texto
+        }
     }
 
     fun limpiarCache() = ejecutar {

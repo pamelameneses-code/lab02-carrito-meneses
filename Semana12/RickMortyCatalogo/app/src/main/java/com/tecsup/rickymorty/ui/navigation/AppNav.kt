@@ -5,6 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import com.tecsup.rickymorty.ui.components.PermisoNotificaciones
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,7 +39,11 @@ fun AppNav(factory: ViewModelProvider.Factory, modifier: Modifier = Modifier) {
         is UiState.Exito -> {
             val sesion = estado.datos
             if (sesion == null) LoginScreen(null, login::iniciarSesion, modifier)
-            else key(sesion.uid) { CatalogoNav(factory, sesion, login::cerrarSesion, modifier) }
+            else key(sesion.uid) {
+                PermisoNotificaciones {
+                    CatalogoNav(factory, sesion, login::cerrarSesion, modifier)
+                }
+            }
         }
     }
 }

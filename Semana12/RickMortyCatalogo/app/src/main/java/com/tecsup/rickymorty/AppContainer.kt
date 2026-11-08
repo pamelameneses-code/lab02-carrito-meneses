@@ -2,6 +2,7 @@ package com.tecsup.rickymorty
 
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
+import com.tecsup.rickymorty.notification.NotificadorAndroid
 import com.tecsup.rickymorty.ui.admin.AdminViewModel
 import com.tecsup.rickymorty.data.auth.FirebaseAuthRepository
 import com.tecsup.rickymorty.ui.login.LoginViewModel
@@ -24,10 +25,12 @@ class AppContainer(context: Context) {
 
     private val auth = FirebaseAuthRepository(context.applicationContext)
 
+    private val notificador = NotificadorAndroid(context.applicationContext)
+
     val factory: ViewModelProvider.Factory = viewModelFactory {
         initializer { LoginViewModel(auth) }
-        initializer { AdminViewModel(items) }
-        initializer { ListaViewModel(items) }
+        initializer { AdminViewModel(items, notificador) }
+        initializer { ListaViewModel(items, notificador) }
         initializer { FavoritosViewModel(items) }
         initializer { DetalleViewModel(items, checkNotNull(createSavedStateHandle().get<Int>("id"))) }
     }
