@@ -18,7 +18,7 @@ class ItemRepositoryImpl(private val api: ApiService) : ItemRepository {
     }
 
     override suspend fun obtenerDetalle(id: Int): Result<Item> =
-        Result.failure(UnsupportedOperationException("Detalle pendiente"))
+        resultado { api.detalle(id).aModelo() }
 
     override suspend fun alternarFavorito(id: Int) = Unit
     override suspend fun cantidadGuardada() = items.value.size

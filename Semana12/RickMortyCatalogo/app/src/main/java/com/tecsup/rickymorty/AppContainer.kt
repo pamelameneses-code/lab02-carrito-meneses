@@ -2,6 +2,8 @@ package com.tecsup.rickymorty
 
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.createSavedStateHandle
+import com.tecsup.rickymorty.ui.detalle.DetalleViewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.tecsup.rickymorty.data.remote.RetrofitClient
 import com.tecsup.rickymorty.data.repository.ItemRepositoryImpl
@@ -12,5 +14,6 @@ class AppContainer {
 
     val factory: ViewModelProvider.Factory = viewModelFactory {
         initializer { ListaViewModel(items) }
+        initializer { DetalleViewModel(items, checkNotNull(createSavedStateHandle().get<Int>("id"))) }
     }
 }
