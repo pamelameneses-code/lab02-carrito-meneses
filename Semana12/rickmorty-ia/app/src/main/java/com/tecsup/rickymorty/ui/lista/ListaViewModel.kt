@@ -8,7 +8,6 @@ import com.tecsup.rickymorty.domain.model.Item
 import com.tecsup.rickymorty.ui.UiState
 import com.tecsup.rickymorty.notification.Notificador
 import com.tecsup.rickymorty.ui.components.mensajeDeDatos
-import java.io.IOException
 import java.text.Normalizer
 import java.util.Locale
 import kotlinx.coroutines.Job
@@ -66,11 +65,7 @@ class ListaViewModel(
                     notificador.mostrar("Datos actualizados", "Se guardaron $n elementos")
                     UiState.Exito(Unit)
                 },
-                onFailure = {
-                    val mensaje = if (it is IOException) "Sin conexión."
-                    else mensajeDeDatos(it)
-                    UiState.Error(mensaje)
-                }
+                onFailure = { UiState.Error(mensajeDeDatos(it)) }
             )
         }
     }
