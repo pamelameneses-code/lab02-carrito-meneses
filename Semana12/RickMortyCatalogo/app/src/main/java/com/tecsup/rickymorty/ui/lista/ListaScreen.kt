@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.clip
+import coil.compose.AsyncImage
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -37,6 +40,11 @@ fun ListaScreen(
                     items(estado.datos, key = { it.id }) { item ->
                         Card(Modifier.fillMaxWidth().clickable { abrir(item.id) }) {
                             Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                AsyncImage(
+                                    model = item.imagenUrl,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(64.dp).clip(MaterialTheme.shapes.small)
+                                )
                                 Column {
                                     Text(item.titulo, style = MaterialTheme.typography.titleMedium)
                                     Text(item.subtitulo)
