@@ -19,7 +19,7 @@ import com.tecsup.rickymorty.ui.components.Cargando
 import com.tecsup.rickymorty.ui.components.ErrorView
 
 @Composable
-fun DetalleScreen(estado: UiState<Item>, volver: () -> Unit, reintentar: () -> Unit) {
+fun DetalleScreen(estado: UiState<Item>, volver: () -> Unit, reintentar: () -> Unit, alternarFavorito: () -> Unit) {
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         TextButton(onClick = volver) { Text("Volver") }
         when (estado) {
@@ -35,6 +35,9 @@ fun DetalleScreen(estado: UiState<Item>, volver: () -> Unit, reintentar: () -> U
                 Text("Especie: ${item.subtitulo}")
                 Text("Estado: ${if (item.estado == "Alive") "Vivo" else item.estado}")
                 Text("Origen: ${item.origen}")
+                TextButton(onClick = alternarFavorito) {
+                    Text(if (item.esFavorito) "Quitar de favoritos" else "Agregar a favoritos")
+                }
             }
         }
     }

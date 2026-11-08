@@ -9,6 +9,7 @@ import com.tecsup.rickymorty.ui.components.mensajeDeDatos
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class DetalleViewModel(private val repo: ItemRepository, private val id: Int) : ViewModel() {
@@ -17,6 +18,16 @@ class DetalleViewModel(private val repo: ItemRepository, private val id: Int) : 
     private var consulta: Job? = null
 
     init { cargar() }
+
+    fun alternarFavorito() {
+        if (_estado.value !is UiState.Exito) return
+        viewModelScope.launch {
+            repo.alternarFavorito(id)
+            val marcado = repo.favoritos.first().any { it.id == id }
+            val actual = _estado.value as? UiState.Exito ?: return@launch
+            _estado.value = UiState.Exito(actual.datos.copy(esFavorito = marcado))
+        }
+    }
 
     fun cargar() {
         if (consulta?.isActive == true) return

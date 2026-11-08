@@ -1,6 +1,11 @@
 package com.tecsup.rickymorty.ui.navigation
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import com.tecsup.rickymorty.ui.favoritos.FavoritosScreen
+import com.tecsup.rickymorty.ui.favoritos.FavoritosViewModel
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,15 +26,26 @@ fun AppNav(factory: ViewModelProvider.Factory, modifier: Modifier = Modifier) {
     NavHost(nav, startDestination = "lista", modifier = modifier) {
         composable("lista") {
             val vm: ListaViewModel = viewModel(factory = factory)
-            ListaScreen(
+            Column {
+                TextButton(onClick = { nav.navigate("favoritos") }) { Text("Favoritos") }
+                ListaScreen(
+                    vm.estado.collectAsStateWithLifecycle().value,
+                    reintentar = vm::refrescar,
+                    abrir = { nav.navigate("detalle/$it") }
+                )
+            }
+        }
+        composable("favoritos") {
+            val vm: FavoritosViewModel = viewModel(factory = factory)
+            FavoritosScreen(
                 vm.estado.collectAsStateWithLifecycle().value,
-                reintentar = vm::refrescar,
-                abrir = { nav.navigate("detalle/$it") }
+                { nav.popBackStack() },
+                { nav.navigate("detalle/$it") }
             )
         }
         composable("detalle/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) {
             val vm: DetalleViewModel = viewModel(factory = factory)
-            DetalleScreen(vm.estado.collectAsStateWithLifecycle().value, { nav.popBackStack() }, vm::cargar)
+            DetalleScreen(vm.estado.collectAsStateWithLifecycle().value, { nav.popBackStack() }, vm::cargar, vm::alternarFavorito)
         }
     }
 }

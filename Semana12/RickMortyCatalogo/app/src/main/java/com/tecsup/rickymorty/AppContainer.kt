@@ -2,6 +2,7 @@ package com.tecsup.rickymorty
 
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
+import com.tecsup.rickymorty.ui.favoritos.FavoritosViewModel
 import androidx.room.Room
 import com.tecsup.rickymorty.data.local.AppDatabase
 import androidx.lifecycle.viewmodel.initializer
@@ -20,6 +21,7 @@ class AppContainer(context: Context) {
 
     val factory: ViewModelProvider.Factory = viewModelFactory {
         initializer { ListaViewModel(items) }
+        initializer { FavoritosViewModel(items) }
         initializer { DetalleViewModel(items, checkNotNull(createSavedStateHandle().get<Int>("id"))) }
     }
 }
