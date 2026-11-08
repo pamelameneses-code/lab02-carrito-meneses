@@ -1,29 +1,43 @@
 package com.tecsup.rickymorty.data.repository
 
+import androidx.room.withTransaction
+import com.tecsup.rickymorty.data.local.AppDatabase
+import com.tecsup.rickymorty.data.mapper.aEntity
 import com.tecsup.rickymorty.data.mapper.aModelo
 import com.tecsup.rickymorty.data.remote.ApiService
 import com.tecsup.rickymorty.domain.model.Item
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
-class ItemRepositoryImpl(private val api: ApiService) : ItemRepository {
-    override val items = MutableStateFlow(emptyList<Item>())
-    override val favoritos = flowOf(emptyList<Item>())
+class ItemRepositoryImpl(private val api: ApiService, private val db: AppDatabase) : ItemRepository {
+    private val dao = db.itemDao()
+    private val sincronizacion = Mutex()
+
+    override val items = dao.todos().map { lista -> lista.map { it.aModelo() } }
+    override val favoritos = dao.favoritos().map { lista -> lista.map { it.aModelo() } }
 
     override suspend fun refrescar() = resultado {
-        val nuevos = api.listar().results.map { it.aModelo() }
-        items.value = nuevos
-        nuevos.size
+        sincronizacion.withLock {
+            val nuevos = api.listar().results
+            db.withTransaction {
+                val favoritos = dao.idsFavoritos().toSet()
+                dao.guardarTodos(nuevos.map { it.aEntity(it.id in favoritos) })
+            }
+            nuevos.size
+        }
     }
 
-    override suspend fun obtenerDetalle(id: Int): Result<Item> =
-        resultado { api.detalle(id).aModelo() }
+    override suspend fun obtenerDetalle(id: Int): Result<Item> = resultado {
+        val dto = api.detalle(id)
+        dto.aEntity(dao.buscar(id)?.esFavorito == true).aModelo()
+    }
 
-    override suspend fun alternarFavorito(id: Int) = Unit
-    override suspend fun cantidadGuardada() = items.value.size
-    override suspend fun cantidadFavoritos() = 0
-    override suspend fun limpiarCache() { items.value = emptyList() }
+    override suspend fun alternarFavorito(id: Int) = dao.alternarFavorito(id)
+    override suspend fun cantidadGuardada() = dao.contar()
+    override suspend fun cantidadFavoritos() = dao.contarFavoritos()
+    override suspend fun limpiarCache() = sincronizacion.withLock { dao.borrarTodo() }
 }
 
 internal suspend fun <T> resultado(operacion: suspend () -> T): Result<T> = try {
