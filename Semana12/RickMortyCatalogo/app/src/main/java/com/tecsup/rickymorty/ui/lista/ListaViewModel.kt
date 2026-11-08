@@ -6,33 +6,45 @@ import com.tecsup.rickymorty.data.repository.ItemRepository
 import com.tecsup.rickymorty.domain.model.Item
 import com.tecsup.rickymorty.ui.UiState
 import com.tecsup.rickymorty.ui.components.mensajeDeDatos
+import java.io.IOException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class ListaViewModel(private val repo: ItemRepository) : ViewModel() {
-    private val _estado = MutableStateFlow<UiState<List<Item>>>(UiState.Cargando)
-    val estado = _estado.asStateFlow()
+    private val actualizacion = MutableStateFlow<UiState<Unit>>(UiState.Cargando)
+    val estado: StateFlow<UiState<List<Item>>> = combine(repo.items, actualizacion) { items, carga ->
+        when {
+            items.isNotEmpty() -> UiState.Exito(items)
+            carga is UiState.Exito -> UiState.Exito(emptyList())
+            carga is UiState.Error -> carga
+            else -> UiState.Cargando
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, UiState.Cargando)
+
+    val aviso = combine(repo.items, actualizacion) { items, carga ->
+        (carga as? UiState.Error)?.mensaje?.takeIf { items.isNotEmpty() }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
     private var consulta: Job? = null
 
-    init {
-        viewModelScope.launch {
-            repo.items.collect { lista ->
-                if (_estado.value is UiState.Exito) _estado.value = UiState.Exito(lista)
-            }
-        }
-        refrescar()
-    }
+    init { refrescar() }
 
     fun refrescar() {
         if (consulta?.isActive == true) return
         consulta = viewModelScope.launch {
-            _estado.value = UiState.Cargando
-            repo.refrescar().fold(
-                onSuccess = { _estado.value = UiState.Exito(repo.items.first()) },
-                onFailure = { _estado.value = UiState.Error(mensajeDeDatos(it)) }
+            actualizacion.value = UiState.Cargando
+            actualizacion.value = repo.refrescar().fold(
+                onSuccess = { UiState.Exito(Unit) },
+                onFailure = {
+                    val mensaje = if (it is IOException) "Sin conexión."
+                    else mensajeDeDatos(it)
+                    UiState.Error(mensaje)
+                }
             )
         }
     }

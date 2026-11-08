@@ -28,6 +28,10 @@ fun AppNav(factory: ViewModelProvider.Factory, modifier: Modifier = Modifier) {
             val vm: ListaViewModel = viewModel(factory = factory)
             Column {
                 TextButton(onClick = { nav.navigate("favoritos") }) { Text("Favoritos") }
+                vm.aviso.collectAsStateWithLifecycle().value?.let {
+                    Text("$it Mostrando datos guardados.")
+                    TextButton(onClick = vm::refrescar) { Text("Reintentar") }
+                }
                 ListaScreen(
                     vm.estado.collectAsStateWithLifecycle().value,
                     reintentar = vm::refrescar,

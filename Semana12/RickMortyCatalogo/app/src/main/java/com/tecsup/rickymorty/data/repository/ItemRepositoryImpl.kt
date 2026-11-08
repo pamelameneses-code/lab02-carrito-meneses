@@ -6,6 +6,7 @@ import com.tecsup.rickymorty.data.mapper.aEntity
 import com.tecsup.rickymorty.data.mapper.aModelo
 import com.tecsup.rickymorty.data.remote.ApiService
 import com.tecsup.rickymorty.domain.model.Item
+import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
@@ -30,8 +31,12 @@ class ItemRepositoryImpl(private val api: ApiService, private val db: AppDatabas
     }
 
     override suspend fun obtenerDetalle(id: Int): Result<Item> = resultado {
-        val dto = api.detalle(id)
-        dto.aEntity(dao.buscar(id)?.esFavorito == true).aModelo()
+        try {
+            val dto = api.detalle(id)
+            dto.aEntity(dao.buscar(id)?.esFavorito == true).aModelo()
+        } catch (e: IOException) {
+            dao.buscar(id)?.aModelo() ?: throw e
+        }
     }
 
     override suspend fun alternarFavorito(id: Int) = dao.alternarFavorito(id)
