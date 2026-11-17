@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.meneses.campusgps.model.UbicacionUi
+import com.meneses.campusgps.util.formatearDistancia
 import com.meneses.campusgps.viewmodel.MapaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,6 +23,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugares.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
+    val cercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
     val permisos = arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)
     val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { resultado ->
@@ -57,7 +59,16 @@ fun PantallaMapa(vm: MapaViewModel) {
                 is UbicacionUi.Lista -> Text("Latitud: ${actual.posicion.latitud} · Longitud: ${actual.posicion.longitud}")
                 is UbicacionUi.Error -> Text(actual.mensaje, color = MaterialTheme.colorScheme.error)
             }
-            MapaUbicacion(estado, lugares, seleccionado, Modifier.fillMaxWidth().weight(1f))
+            val actual = cercano
+            OutlinedButton(onClick = { actual?.let { vm.seleccionar(it.id) } }, enabled = actual != null) {
+                Text("Ir al más cercano")
+            }
+            if (actual != null) {
+                lugares.firstOrNull { it.lugar.id == actual.id }?.metros?.let { distancia ->
+                    Text("Más cercano: ${actual.nombre} (${formatearDistancia(distancia)})")
+                }
+            }
+            MapaUbicacion(estado, lugares, seleccionado, Modifier.fillMaxWidth().weight(1f), actual?.id)
             ListaLugares(lugares, seleccionado, vm::seleccionar)
         }
     }

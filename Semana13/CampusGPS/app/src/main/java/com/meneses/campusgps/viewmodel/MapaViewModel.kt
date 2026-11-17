@@ -10,6 +10,11 @@ import com.meneses.campusgps.model.Posicion
 import com.meneses.campusgps.util.distanciaMetros
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import com.meneses.campusgps.model.Lugar
 import kotlinx.coroutines.launch
 
 class MapaViewModel(
@@ -20,6 +25,9 @@ class MapaViewModel(
     val estado = _estado.asStateFlow()
     private val _lugares = MutableStateFlow(lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) })
     val lugares = _lugares.asStateFlow()
+    val masCercano: StateFlow<Lugar?> = lugares
+        .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado = _seleccionado.asStateFlow()
 
