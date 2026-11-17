@@ -58,6 +58,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 is UbicacionUi.Error -> Text(actual.mensaje, color = MaterialTheme.colorScheme.error)
             }
             MapaUbicacion(estado, lugares, seleccionado, Modifier.fillMaxWidth().weight(1f))
+            ListaLugares(lugares, seleccionado, vm::seleccionar)
         }
     }
 }

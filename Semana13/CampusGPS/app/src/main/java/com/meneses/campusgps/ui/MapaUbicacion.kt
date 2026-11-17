@@ -26,6 +26,12 @@ fun MapaUbicacion(
             camara.animate(CameraUpdateFactory.newLatLngZoom(LatLng(posicion.latitud, posicion.longitud), 16f))
         }
     }
+    LaunchedEffect(seleccionado) {
+        val lugar = lugares.firstOrNull { it.lugar.id == seleccionado }?.lugar
+        if (lugar != null) {
+            camara.animate(CameraUpdateFactory.newLatLngZoom(LatLng(lugar.latitud, lugar.longitud), 17f))
+        }
+    }
     GoogleMap(modifier = modifier, cameraPositionState = camara) {
         lugares.forEach { entrada ->
             val lugar = entrada.lugar
