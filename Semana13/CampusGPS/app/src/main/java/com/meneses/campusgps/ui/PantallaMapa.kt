@@ -20,6 +20,8 @@ import com.meneses.campusgps.viewmodel.MapaViewModel
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
+    val lugares by vm.lugares.collectAsState()
+    val seleccionado by vm.seleccionado.collectAsState()
     val contexto = LocalContext.current
     val permisos = arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)
     val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { resultado ->
@@ -55,6 +57,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 is UbicacionUi.Lista -> Text("Latitud: ${actual.posicion.latitud} · Longitud: ${actual.posicion.longitud}")
                 is UbicacionUi.Error -> Text(actual.mensaje, color = MaterialTheme.colorScheme.error)
             }
+            MapaUbicacion(estado, lugares, seleccionado, Modifier.fillMaxWidth().weight(1f))
         }
     }
 }
