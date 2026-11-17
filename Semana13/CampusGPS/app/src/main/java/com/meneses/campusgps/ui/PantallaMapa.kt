@@ -57,7 +57,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 UbicacionUi.Inicial -> Unit
                 UbicacionUi.Buscando -> CircularProgressIndicator()
                 is UbicacionUi.Lista -> Text("Latitud: ${actual.posicion.latitud} · Longitud: ${actual.posicion.longitud}")
-                is UbicacionUi.Error -> Text(actual.mensaje, color = MaterialTheme.colorScheme.error)
+                is UbicacionUi.Error -> MensajeError(actual, buscar)
             }
             val actual = cercano
             OutlinedButton(onClick = { actual?.let { vm.seleccionar(it.id) } }, enabled = actual != null) {
