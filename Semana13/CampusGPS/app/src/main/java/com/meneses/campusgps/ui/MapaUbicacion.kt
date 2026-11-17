@@ -3,6 +3,7 @@ package com.meneses.campusgps.ui
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
@@ -26,6 +27,17 @@ fun MapaUbicacion(
         }
     }
     GoogleMap(modifier = modifier, cameraPositionState = camara) {
+        lugares.forEach { entrada ->
+            val lugar = entrada.lugar
+            key(lugar.id) {
+                Marker(
+                    state = rememberUpdatedMarkerState(position = LatLng(lugar.latitud, lugar.longitud)),
+                    title = lugar.nombre,
+                    snippet = lugar.categoria,
+                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+                )
+            }
+        }
         if (posicion != null) {
             Marker(
                 state = rememberUpdatedMarkerState(position = LatLng(posicion.latitud, posicion.longitud)),
