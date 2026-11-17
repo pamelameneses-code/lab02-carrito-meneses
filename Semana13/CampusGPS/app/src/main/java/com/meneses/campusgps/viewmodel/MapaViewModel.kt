@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meneses.campusgps.data.LugaresRepository
 import com.meneses.campusgps.data.UbicacionRepository
+import com.meneses.campusgps.data.UbicacionNoDisponible
+import com.meneses.campusgps.model.TipoError
 import com.meneses.campusgps.model.LugarConDistancia
 import com.meneses.campusgps.model.UbicacionUi
 import com.meneses.campusgps.model.Posicion
@@ -33,6 +35,10 @@ class MapaViewModel(
 
     fun buscar() {
         if (_estado.value == UbicacionUi.Buscando) return
+        if (!ubicacionRepo.playServicesDisponible()) {
+            _estado.value = UbicacionUi.Error("Este dispositivo no tiene Google Play Services", TipoError.SIN_PLAY_SERVICES)
+            return
+        }
         _estado.value = UbicacionUi.Buscando
         viewModelScope.launch {
             ubicacionRepo.obtenerPosicion()
@@ -41,7 +47,13 @@ class MapaViewModel(
                     _estado.value = UbicacionUi.Lista(it)
                 }
                 .onFailure {
-                    _estado.value = UbicacionUi.Error(it.message ?: "No se pudo obtener la ubicación")
+                    when (it) {
+                        is SecurityException -> permisoDenegado()
+                        is UbicacionNoDisponible -> {
+                            _estado.value = UbicacionUi.Error("Activa el GPS e intenta de nuevo", TipoError.GPS_APAGADO)
+                        }
+                        else -> _estado.value = UbicacionUi.Error("No se pudo obtener la ubicación", TipoError.OTRO)
+                    }
                 }
         }
     }
@@ -57,6 +69,9 @@ class MapaViewModel(
     }
 
     fun permisoDenegado() {
-        _estado.value = UbicacionUi.Error("Sin permiso de ubicación no puedo mostrar dónde estás")
+        _estado.value = UbicacionUi.Error(
+            "Sin permiso de ubicación no puedo mostrar dónde estás",
+            TipoError.SIN_PERMISO
+        )
     }
 }
