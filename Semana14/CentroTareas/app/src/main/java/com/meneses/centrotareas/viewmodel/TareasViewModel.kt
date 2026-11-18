@@ -11,6 +11,9 @@ import kotlinx.coroutines.withContext
 import com.meneses.centrotareas.data.TareasRepository
 import com.meneses.centrotareas.model.PrimosUi
 import kotlinx.coroutines.CancellationException
+import com.meneses.centrotareas.model.CargaUi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -75,5 +78,31 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
     fun cancelarPrimos() {
         calculo?.cancel()
+    }
+
+    private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
+    val carga = _carga.asStateFlow()
+
+    fun cargarUnaPorUna() = cargar(enParalelo = false)
+
+    fun cargarALaVez() = cargar(enParalelo = true)
+
+    private fun cargar(enParalelo: Boolean) {
+        if (_carga.value == CargaUi.Cargando) return
+        viewModelScope.launch {
+            _carga.value = CargaUi.Cargando
+            val inicio = System.currentTimeMillis()
+            val (perfil, pedidos) = if (enParalelo) {
+                coroutineScope {
+                    val perfilPendiente = async { repo.cargarPerfil() }
+                    val pedidosPendientes = async { repo.cargarPedidos(false) }
+                    perfilPendiente.await() to pedidosPendientes.await()
+                }
+            } else {
+                repo.cargarPerfil() to repo.cargarPedidos(false)
+            }
+            val modo = if (enParalelo) "A la vez" else "Una por una"
+            _carga.value = CargaUi.Exito(modo, perfil, pedidos.size, System.currentTimeMillis() - inicio)
+        }
     }
 }

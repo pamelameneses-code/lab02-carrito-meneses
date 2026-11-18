@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import com.meneses.centrotareas.model.PrimosUi
+import com.meneses.centrotareas.model.CargaUi
 import com.meneses.centrotareas.viewmodel.TareasViewModel
 
 @Composable
@@ -22,6 +23,7 @@ fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
     val primos by vm.primos.collectAsState()
     var limite by rememberSaveable { mutableStateOf("500000") }
     val hasta = limite.toIntOrNull()?.takeIf { it >= 2 }
+    val carga by vm.carga.collectAsState()
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Surface(color = MaterialTheme.colorScheme.primary) {
             Text("CentroTareas", Modifier.fillMaxWidth().padding(16.dp),
@@ -60,7 +62,21 @@ fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
                 }
             }
             Tarjeta("Dos cargas") {
-
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = vm::cargarUnaPorUna, enabled = carga != CargaUi.Cargando) {
+                        Text("Una por una")
+                    }
+                    Button(onClick = vm::cargarALaVez, enabled = carga != CargaUi.Cargando) {
+                        Text("A la vez")
+                    }
+                }
+                when (val estado = carga) {
+                    CargaUi.Inicial -> Unit
+                    CargaUi.Cargando -> CircularProgressIndicator()
+                    is CargaUi.Exito -> Resultado(
+                        "${estado.modo}\n${estado.perfil}\nPedidos: ${estado.pedidos} · ${estado.milisegundos} ms"
+                    )
+                }
             }
         }
     }

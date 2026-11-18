@@ -1,6 +1,8 @@
 package com.meneses.centrotareas.data
 
+import java.io.IOException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 
@@ -12,6 +14,17 @@ class TareasRepositoryLocal : TareasRepository {
             if (esPrimo(n)) cantidad++
         }
         cantidad
+    }
+
+    override suspend fun cargarPerfil(): String {
+        delay(2000)
+        return "Ana Torres (ficticia)"
+    }
+
+    override suspend fun cargarPedidos(simularError: Boolean): List<String> {
+        delay(3000)
+        if (simularError) throw IOException("Sin conexión")
+        return listOf("Pedido 101", "Pedido 102", "Pedido 103")
     }
 
     private fun esPrimo(n: Int): Boolean {
