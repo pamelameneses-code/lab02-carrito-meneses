@@ -24,7 +24,7 @@ fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Tarjeta("Tarea con progreso") {
                 Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                Button(onClick = vm::tareaLargaMala) { Text("Tarea larga (MAL)") }
+                Button(onClick = vm::tareaLarga) { Text("Tarea larga") }
                 Text(mensaje)
             }
             Tarjeta("Contar números primos") {
