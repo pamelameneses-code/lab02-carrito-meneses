@@ -15,7 +15,7 @@ import com.meneses.centrotareas.viewmodel.TareasViewModel
 fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
     val mensaje by vm.mensaje.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
-
+    val progreso by vm.progreso.collectAsState()
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Surface(color = MaterialTheme.colorScheme.primary) {
             Text("CentroTareas", Modifier.fillMaxWidth().padding(16.dp),
@@ -24,7 +24,9 @@ fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Tarjeta("Tarea con progreso") {
                 Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                Button(onClick = vm::tareaLarga) { Text("Tarea larga") }
+                Button(onClick = vm::tareaLarga) { Text("Iniciar") }
+                LinearProgressIndicator(progress = { progreso }, modifier = Modifier.fillMaxWidth())
+                Text("${(progreso * 100).toInt()} %")
                 Text(mensaje)
             }
             Tarjeta("Contar números primos") {
