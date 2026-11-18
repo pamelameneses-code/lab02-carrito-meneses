@@ -6,6 +6,7 @@ import android.util.Log
 import kotlinx.coroutines.Job
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import com.meneses.centrotareas.data.AvancePrimos
 import com.meneses.centrotareas.data.TareasRepository
 import com.meneses.centrotareas.model.PrimosUi
 import kotlinx.coroutines.CancellationException
@@ -56,11 +57,17 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     fun contar(hasta: Int) {
         if (hasta < 2 || calculo?.isActive == true) return
         calculo = viewModelScope.launch {
-            _primos.value = PrimosUi.Calculando
+            _primos.value = PrimosUi.Calculando(0)
             val inicio = System.currentTimeMillis()
             try {
-                val cantidad = repo.contarPrimos(hasta)
-                _primos.value = PrimosUi.Listo(cantidad, System.currentTimeMillis() - inicio)
+                repo.contarPrimos(hasta).collect { avance ->
+                    _primos.value = when (avance) {
+                        is AvancePrimos.Calculando -> PrimosUi.Calculando(avance.porcentaje)
+                        is AvancePrimos.Terminado -> PrimosUi.Listo(
+                            avance.cantidad, System.currentTimeMillis() - inicio
+                        )
+                    }
+                }
             } catch (e: CancellationException) {
                 _primos.value = PrimosUi.Cancelado
                 throw e

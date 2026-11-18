@@ -4,7 +4,8 @@ import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.Flow
 
 import android.util.Log
 import kotlinx.coroutines.flow.flow
@@ -19,14 +20,22 @@ class TareasRepositoryLocal : TareasRepository {
         }
     }.flowOn(Dispatchers.Default)
 
-    override suspend fun contarPrimos(hasta: Int): Int = withContext(Dispatchers.Default) {
+    override fun contarPrimos(hasta: Int): Flow<AvancePrimos> = flow {
+        require(hasta >= 2)
+        val contexto = currentCoroutineContext()
         var cantidad = 0
+        var ultimoPorcentaje = 0
         for (n in 2..hasta) {
-            ensureActive()
+            contexto.ensureActive()
             if (esPrimo(n)) cantidad++
+            val porcentaje = ((n - 1L) * 100 / (hasta - 1)).toInt()
+            if (porcentaje != ultimoPorcentaje) {
+                emit(AvancePrimos.Calculando(porcentaje))
+                ultimoPorcentaje = porcentaje
+            }
         }
-        cantidad
-    }
+        emit(AvancePrimos.Terminado(cantidad))
+    }.flowOn(Dispatchers.Default)
 
     override suspend fun cargarPerfil(): String {
         delay(2000)

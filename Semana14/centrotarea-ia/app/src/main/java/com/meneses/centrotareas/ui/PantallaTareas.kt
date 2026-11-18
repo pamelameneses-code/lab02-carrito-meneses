@@ -51,13 +51,19 @@ fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = { hasta?.let(vm::contar) },
-                        enabled = hasta != null && primos != PrimosUi.Calculando) { Text("Contar") }
+                        enabled = hasta != null && primos !is PrimosUi.Calculando) { Text("Contar") }
                     OutlinedButton(onClick = vm::cancelarPrimos,
-                        enabled = primos == PrimosUi.Calculando) { Text("Cancelar") }
+                        enabled = primos is PrimosUi.Calculando) { Text("Cancelar") }
                 }
                 when (val estado = primos) {
                     PrimosUi.Inicial -> Unit
-                    PrimosUi.Calculando -> Text("Calculando…")
+                    is PrimosUi.Calculando -> {
+                        LinearProgressIndicator(
+                            progress = { estado.porcentaje / 100f },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text("Calculando… ${estado.porcentaje} %")
+                    }
                     PrimosUi.Cancelado -> Text("Cancelado")
                     is PrimosUi.Listo -> Resultado("${estado.cantidad} primos · ${estado.milisegundos} ms")
                 }
