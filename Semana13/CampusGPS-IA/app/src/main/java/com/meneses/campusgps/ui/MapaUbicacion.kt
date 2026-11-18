@@ -18,7 +18,8 @@ fun MapaUbicacion(
     seleccionado: Int?,
     modifier: Modifier = Modifier,
     idMasCercano: Int? = null,
-    radioMetros: Int
+    radioMetros: Int,
+    mostrarUbicacion: Boolean
 ) {
     val camara = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(-12.0464, -77.0428), 12f)
@@ -35,7 +36,12 @@ fun MapaUbicacion(
             camara.animate(CameraUpdateFactory.newLatLngZoom(LatLng(lugar.latitud, lugar.longitud), 17f))
         }
     }
-    GoogleMap(modifier = modifier, cameraPositionState = camara) {
+    GoogleMap(
+        modifier = modifier,
+        cameraPositionState = camara,
+        properties = MapProperties(isMyLocationEnabled = mostrarUbicacion),
+        uiSettings = MapUiSettings(myLocationButtonEnabled = mostrarUbicacion)
+    ) {
         lugares.forEach { entrada ->
             val lugar = entrada.lugar
             key(lugar.id) {

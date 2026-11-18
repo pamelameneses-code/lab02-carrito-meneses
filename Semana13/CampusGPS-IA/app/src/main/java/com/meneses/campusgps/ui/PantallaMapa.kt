@@ -30,11 +30,28 @@ fun PantallaMapa(vm: MapaViewModel) {
     val cercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
     val permisos = arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)
+    fun permisoConcedido(): Boolean = permisos.any {
+        ContextCompat.checkSelfPermission(contexto, it) == PackageManager.PERMISSION_GRANTED
+    }
+    var mostrarUbicacion by remember { mutableStateOf(permisoConcedido()) }
+    val propietario = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(propietario, contexto) {
+        val observador = androidx.lifecycle.LifecycleEventObserver { _, evento ->
+            if (evento == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                mostrarUbicacion = permisoConcedido()
+            }
+        }
+        propietario.lifecycle.addObserver(observador)
+        onDispose { propietario.lifecycle.removeObserver(observador) }
+    }
+
     val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { resultado ->
-        if (resultado.values.any { it }) vm.buscar() else vm.permisoDenegado()
+        mostrarUbicacion = resultado.values.any { it } || permisoConcedido()
+        if (mostrarUbicacion) vm.buscar() else vm.permisoDenegado()
     }
     val buscar: () -> Unit = {
-        if (permisos.any { ContextCompat.checkSelfPermission(contexto, it) == PackageManager.PERMISSION_GRANTED }) {
+        mostrarUbicacion = permisoConcedido()
+        if (mostrarUbicacion) {
             vm.buscar()
         } else {
             lanzador.launch(permisos)
@@ -96,7 +113,15 @@ fun PantallaMapa(vm: MapaViewModel) {
                     )
                 }
             }
-            MapaUbicacion(estado, lugares, seleccionado, Modifier.fillMaxWidth().weight(1f), actual?.id, radio)
+            MapaUbicacion(
+                estado = estado,
+                lugares = lugares,
+                seleccionado = seleccionado,
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                idMasCercano = actual?.id,
+                radioMetros = radio,
+                mostrarUbicacion = mostrarUbicacion
+            )
             ListaLugares(lugares, seleccionado, radio, vm::seleccionar)
         }
     }
