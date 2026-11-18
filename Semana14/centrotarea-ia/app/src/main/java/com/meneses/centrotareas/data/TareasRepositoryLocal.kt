@@ -6,7 +6,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 
+import android.util.Log
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+
 class TareasRepositoryLocal : TareasRepository {
+    override fun progresoTarea() = flow {
+        Log.d("HILO", "Dentro: ${Thread.currentThread().name}")
+        for (paso in 1..100) {
+            delay(40)
+            emit(paso / 100f)
+        }
+    }.flowOn(Dispatchers.Default)
+
     override suspend fun contarPrimos(hasta: Int): Int = withContext(Dispatchers.Default) {
         var cantidad = 0
         for (n in 2..hasta) {

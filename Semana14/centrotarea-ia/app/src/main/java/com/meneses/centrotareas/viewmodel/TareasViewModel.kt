@@ -5,10 +5,7 @@ import java.io.IOException
 import android.util.Log
 import kotlinx.coroutines.Job
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import com.meneses.centrotareas.data.TareasRepository
 import com.meneses.centrotareas.model.PrimosUi
 import kotlinx.coroutines.CancellationException
@@ -37,13 +34,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             _mensaje.value = "Trabajando..."
             try {
                 Log.d("HILO", "Antes: ${Thread.currentThread().name}")
-                withContext(Dispatchers.Default) {
-                    Log.d("HILO", "Dentro: ${Thread.currentThread().name}")
-                    for (paso in 1..100) {
-                        delay(40)
-                        _progreso.value = paso / 100f
-                    }
-                }
+                repo.progresoTarea().collect { _progreso.value = it }
                 Log.d("HILO", "Despues: ${Thread.currentThread().name}")
                 _mensaje.value = "Terminó"
             } finally {
