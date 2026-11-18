@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import com.meneses.campusgps.model.Lugar
@@ -26,7 +27,18 @@ class MapaViewModel(
     private val _estado = MutableStateFlow<UbicacionUi>(UbicacionUi.Inicial)
     val estado = _estado.asStateFlow()
     private val _lugares = MutableStateFlow(lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) })
-    val lugares = _lugares.asStateFlow()
+    val categorias = lugaresRepo.obtenerLugares().map { it.categoria }.distinct()
+    private val _categoria = MutableStateFlow<String?>(null)
+    val categoria = _categoria.asStateFlow()
+    val lugares = combine(_lugares, categoria) { lista, filtro ->
+        lista.filter { filtro == null || it.lugar.categoria == filtro }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _lugares.value)
+
+    fun filtrarCategoria(categoria: String?) {
+        val actual = _lugares.value.firstOrNull { it.lugar.id == _seleccionado.value }
+        if (categoria != null && actual?.lugar?.categoria != categoria) seleccionar(null)
+        _categoria.value = categoria
+    }
     val masCercano: StateFlow<Lugar?> = lugares
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)

@@ -5,7 +5,9 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +24,7 @@ import com.meneses.campusgps.viewmodel.MapaViewModel
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugares.collectAsState()
+    val categoria by vm.categoria.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val cercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
@@ -66,6 +69,18 @@ fun PantallaMapa(vm: MapaViewModel) {
             if (actual != null) {
                 lugares.firstOrNull { it.lugar.id == actual.id }?.metros?.let { distancia ->
                     Text("Más cercano: ${actual.nombre} (${formatearDistancia(distancia)})")
+                }
+            }
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                (listOf(null) + vm.categorias).forEach { opcion ->
+                    FilterChip(
+                        selected = categoria == opcion,
+                        onClick = { vm.filtrarCategoria(opcion) },
+                        label = { Text(opcion ?: "Todos") }
+                    )
                 }
             }
             MapaUbicacion(estado, lugares, seleccionado, Modifier.fillMaxWidth().weight(1f), actual?.id)
