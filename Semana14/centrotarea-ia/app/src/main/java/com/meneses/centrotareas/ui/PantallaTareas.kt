@@ -24,6 +24,7 @@ fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
     var limite by rememberSaveable { mutableStateOf("500000") }
     val hasta = limite.toIntOrNull()?.takeIf { it >= 2 }
     val carga by vm.carga.collectAsState()
+    val tiemposCarga by vm.tiemposCarga.collectAsState()
     val simularError by vm.simularError.collectAsState()
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Surface(color = MaterialTheme.colorScheme.primary) {
@@ -101,6 +102,24 @@ fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
                         "${estado.modo}\n${estado.perfil}\nPedidos: ${estado.pedidos} · ${estado.milisegundos} ms"
                     )
                 }
+                if (tiemposCarga.isNotEmpty()) {
+                    TablaTiempos(tiemposCarga)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TablaTiempos(tiempos: Map<String, List<Long>>) {
+    Text("Tiempos de carga", style = MaterialTheme.typography.titleSmall)
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        for (modo in listOf("Una por una", "A la vez")) {
+            Column(Modifier.weight(1f)) {
+                Text(modo)
+                val mediciones = tiempos[modo].orEmpty()
+                if (mediciones.isEmpty()) Text("—")
+                mediciones.asReversed().forEach { Text("$it ms") }
             }
         }
     }

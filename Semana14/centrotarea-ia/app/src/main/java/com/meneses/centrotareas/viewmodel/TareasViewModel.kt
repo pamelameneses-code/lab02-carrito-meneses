@@ -82,6 +82,9 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga = _carga.asStateFlow()
 
+    private val _tiemposCarga = MutableStateFlow<Map<String, List<Long>>>(emptyMap())
+    val tiemposCarga = _tiemposCarga.asStateFlow()
+
     private val _simularError = MutableStateFlow(false)
     val simularError = _simularError.asStateFlow()
 
@@ -110,7 +113,11 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                     repo.cargarPerfil() to repo.cargarPedidos(fallaSimulada)
                 }
                 val modo = if (enParalelo) "A la vez" else "Una por una"
-                _carga.value = CargaUi.Exito(modo, perfil, pedidos.size, System.currentTimeMillis() - inicio)
+                val milisegundos = System.currentTimeMillis() - inicio
+                val tiempos = _tiemposCarga.value
+                val recientes = (tiempos[modo].orEmpty() + milisegundos).takeLast(5)
+                _tiemposCarga.value = tiempos + (modo to recientes)
+                _carga.value = CargaUi.Exito(modo, perfil, pedidos.size, milisegundos)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: IOException) {
