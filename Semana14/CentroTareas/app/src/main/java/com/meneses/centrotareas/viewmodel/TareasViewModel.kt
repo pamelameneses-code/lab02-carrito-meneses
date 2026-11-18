@@ -8,10 +8,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.meneses.centrotareas.data.TareasRepository
+import com.meneses.centrotareas.model.PrimosUi
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class TareasViewModel : ViewModel() {
+class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _mensaje = MutableStateFlow("Listo")
     val mensaje = _mensaje.asStateFlow()
 
@@ -49,5 +52,28 @@ class TareasViewModel : ViewModel() {
         if (!_corriendo.value) return
         trabajo?.cancel()
         _mensaje.value = "Cancelado"
+    }
+
+    private val _primos = MutableStateFlow<PrimosUi>(PrimosUi.Inicial)
+    val primos = _primos.asStateFlow()
+    private var calculo: Job? = null
+
+    fun contar(hasta: Int) {
+        if (hasta < 2 || calculo?.isActive == true) return
+        calculo = viewModelScope.launch {
+            _primos.value = PrimosUi.Calculando
+            val inicio = System.currentTimeMillis()
+            try {
+                val cantidad = repo.contarPrimos(hasta)
+                _primos.value = PrimosUi.Listo(cantidad, System.currentTimeMillis() - inicio)
+            } catch (e: CancellationException) {
+                _primos.value = PrimosUi.Cancelado
+                throw e
+            }
+        }
+    }
+
+    fun cancelarPrimos() {
+        calculo?.cancel()
     }
 }

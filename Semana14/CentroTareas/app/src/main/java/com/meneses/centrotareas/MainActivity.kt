@@ -6,6 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import com.meneses.centrotareas.viewmodel.TareasViewModelFactory
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meneses.centrotareas.ui.PantallaTareas
 import com.meneses.centrotareas.ui.theme.CentroTareasTheme
@@ -18,7 +19,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             CentroTareasTheme {
                 Scaffold { padding ->
-                    PantallaTareas(viewModel(), Modifier.padding(padding))
+                    PantallaTareas(viewModel(factory = TareasViewModelFactory), Modifier.padding(padding))
                 }
             }
         }
