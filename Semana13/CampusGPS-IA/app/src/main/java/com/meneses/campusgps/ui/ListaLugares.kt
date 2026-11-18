@@ -15,7 +15,7 @@ import com.meneses.campusgps.model.LugarConDistancia
 import com.meneses.campusgps.util.formatearDistancia
 
 @Composable
-fun ListaLugares(lugares: List<LugarConDistancia>, seleccionado: Int?, onClick: (Int) -> Unit) {
+fun ListaLugares(lugares: List<LugarConDistancia>, seleccionado: Int?, radioMetros: Int, onClick: (Int) -> Unit) {
     LazyColumn(Modifier.fillMaxWidth().height(220.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         items(lugares, key = { it.lugar.id }) { entrada ->
             val lugar = entrada.lugar
@@ -32,6 +32,9 @@ fun ListaLugares(lugares: List<LugarConDistancia>, seleccionado: Int?, onClick: 
                     Column(Modifier.weight(1f)) {
                         Text(lugar.nombre, fontWeight = FontWeight.Bold)
                         Text(lugar.categoria, color = colores.onSurfaceVariant)
+                        if (entrada.metros?.let { it <= radioMetros } == true) {
+                            Text("Dentro del radio", color = colores.primary, style = MaterialTheme.typography.labelSmall)
+                        }
                     }
                     Text(entrada.metros?.let(::formatearDistancia) ?: "Sin calcular")
                 }

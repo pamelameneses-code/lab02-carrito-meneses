@@ -2,6 +2,7 @@ package com.meneses.campusgps.ui
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -16,7 +17,8 @@ fun MapaUbicacion(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     modifier: Modifier = Modifier,
-    idMasCercano: Int? = null
+    idMasCercano: Int? = null,
+    radioMetros: Int
 ) {
     val camara = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(-12.0464, -77.0428), 12f)
@@ -49,6 +51,13 @@ fun MapaUbicacion(
             }
         }
         if (posicion != null) {
+            Circle(
+                center = LatLng(posicion.latitud, posicion.longitud),
+                radius = radioMetros.toDouble(),
+                strokeColor = Color(0xFF1976D2),
+                strokeWidth = 3f,
+                fillColor = Color(0x261976D2)
+            )
             Marker(
                 state = rememberUpdatedMarkerState(position = LatLng(posicion.latitud, posicion.longitud)),
                 title = "Estás aquí"

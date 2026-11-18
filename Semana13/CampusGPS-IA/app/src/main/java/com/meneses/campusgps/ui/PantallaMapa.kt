@@ -25,6 +25,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugares.collectAsState()
     val categoria by vm.categoria.collectAsState()
+    val radio by vm.radio.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val cercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
@@ -83,8 +84,20 @@ fun PantallaMapa(vm: MapaViewModel) {
                     )
                 }
             }
-            MapaUbicacion(estado, lugares, seleccionado, Modifier.fillMaxWidth().weight(1f), actual?.id)
-            ListaLugares(lugares, seleccionado, vm::seleccionar)
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                vm.radiosDisponibles.forEach { metros ->
+                    FilterChip(
+                        selected = radio == metros,
+                        onClick = { vm.cambiarRadio(metros) },
+                        label = { Text("Radio: ${metros} m") }
+                    )
+                }
+            }
+            MapaUbicacion(estado, lugares, seleccionado, Modifier.fillMaxWidth().weight(1f), actual?.id, radio)
+            ListaLugares(lugares, seleccionado, radio, vm::seleccionar)
         }
     }
 }

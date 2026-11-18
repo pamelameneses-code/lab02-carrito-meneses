@@ -34,6 +34,15 @@ class MapaViewModel(
         lista.filter { filtro == null || it.lugar.categoria == filtro }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _lugares.value)
 
+    val radiosDisponibles = listOf(100, 200, 500)
+    private val _radio = MutableStateFlow(200)
+    val radio = _radio.asStateFlow()
+
+    fun cambiarRadio(metros: Int) {
+        require(metros in radiosDisponibles)
+        _radio.value = metros
+    }
+
     fun filtrarCategoria(categoria: String?) {
         val actual = _lugares.value.firstOrNull { it.lugar.id == _seleccionado.value }
         if (categoria != null && actual?.lugar?.categoria != categoria) seleccionar(null)
