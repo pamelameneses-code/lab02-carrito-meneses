@@ -1,6 +1,7 @@
 package com.meneses.centrotareas.viewmodel
 
 import androidx.lifecycle.ViewModel
+import java.io.IOException
 import android.util.Log
 import kotlinx.coroutines.Job
 import androidx.lifecycle.viewModelScope
@@ -83,26 +84,40 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga = _carga.asStateFlow()
 
+    private val _simularError = MutableStateFlow(false)
+    val simularError = _simularError.asStateFlow()
+
+    fun cambiarSimularError(valor: Boolean) {
+        _simularError.value = valor
+    }
+
     fun cargarUnaPorUna() = cargar(enParalelo = false)
 
     fun cargarALaVez() = cargar(enParalelo = true)
 
     private fun cargar(enParalelo: Boolean) {
         if (_carga.value == CargaUi.Cargando) return
+        val fallaSimulada = _simularError.value
         viewModelScope.launch {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
-            val (perfil, pedidos) = if (enParalelo) {
-                coroutineScope {
-                    val perfilPendiente = async { repo.cargarPerfil() }
-                    val pedidosPendientes = async { repo.cargarPedidos(false) }
-                    perfilPendiente.await() to pedidosPendientes.await()
+            try {
+                val (perfil, pedidos) = if (enParalelo) {
+                    coroutineScope {
+                        val perfilPendiente = async { repo.cargarPerfil() }
+                        val pedidosPendientes = async { repo.cargarPedidos(fallaSimulada) }
+                        perfilPendiente.await() to pedidosPendientes.await()
+                    }
+                } else {
+                    repo.cargarPerfil() to repo.cargarPedidos(fallaSimulada)
                 }
-            } else {
-                repo.cargarPerfil() to repo.cargarPedidos(false)
+                val modo = if (enParalelo) "A la vez" else "Una por una"
+                _carga.value = CargaUi.Exito(modo, perfil, pedidos.size, System.currentTimeMillis() - inicio)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: IOException) {
+                _carga.value = CargaUi.Error("No se pudo cargar: ${e.message}")
             }
-            val modo = if (enParalelo) "A la vez" else "Una por una"
-            _carga.value = CargaUi.Exito(modo, perfil, pedidos.size, System.currentTimeMillis() - inicio)
         }
     }
 }

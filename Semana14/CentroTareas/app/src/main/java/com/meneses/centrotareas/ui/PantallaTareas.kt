@@ -24,6 +24,7 @@ fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
     var limite by rememberSaveable { mutableStateOf("500000") }
     val hasta = limite.toIntOrNull()?.takeIf { it >= 2 }
     val carga by vm.carga.collectAsState()
+    val simularError by vm.simularError.collectAsState()
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Surface(color = MaterialTheme.colorScheme.primary) {
             Text("CentroTareas", Modifier.fillMaxWidth().padding(16.dp),
@@ -62,6 +63,12 @@ fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
                 }
             }
             Tarjeta("Dos cargas") {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Switch(checked = simularError, onCheckedChange = vm::cambiarSimularError,
+                        enabled = carga != CargaUi.Cargando)
+                    Text("Simular error")
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = vm::cargarUnaPorUna, enabled = carga != CargaUi.Cargando) {
                         Text("Una por una")
@@ -73,6 +80,17 @@ fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
                 when (val estado = carga) {
                     CargaUi.Inicial -> Unit
                     CargaUi.Cargando -> CircularProgressIndicator()
+                    is CargaUi.Error -> Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(Modifier.padding(12.dp)) {
+                            Text(estado.mensaje)
+                            OutlinedButton(onClick = vm::cargarALaVez) { Text("Reintentar") }
+                        }
+                    }
                     is CargaUi.Exito -> Resultado(
                         "${estado.modo}\n${estado.perfil}\nPedidos: ${estado.pedidos} · ${estado.milisegundos} ms"
                     )

@@ -16,4 +16,5 @@ sealed interface CargaUi {
         val pedidos: Int,
         val milisegundos: Long
     ) : CargaUi
+    data class Error(val mensaje: String) : CargaUi
 }
