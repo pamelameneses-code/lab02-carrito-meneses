@@ -16,6 +16,7 @@ fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
     val mensaje by vm.mensaje.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
     val progreso by vm.progreso.collectAsState()
+    val corriendo by vm.corriendo.collectAsState()
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Surface(color = MaterialTheme.colorScheme.primary) {
             Text("CentroTareas", Modifier.fillMaxWidth().padding(16.dp),
@@ -24,7 +25,10 @@ fun PantallaTareas(vm: TareasViewModel, modifier: Modifier = Modifier) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Tarjeta("Tarea con progreso") {
                 Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                Button(onClick = vm::tareaLarga) { Text("Iniciar") }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = vm::tareaLarga, enabled = !corriendo) { Text("Iniciar") }
+                    OutlinedButton(onClick = vm::cancelar, enabled = corriendo) { Text("Cancelar") }
+                }
                 LinearProgressIndicator(progress = { progreso }, modifier = Modifier.fillMaxWidth())
                 Text("${(progreso * 100).toInt()} %")
                 Text(mensaje)
