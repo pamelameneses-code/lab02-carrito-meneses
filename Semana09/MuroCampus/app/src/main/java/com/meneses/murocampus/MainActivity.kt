@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.meneses.murocampus.data.PostRepositoryRemote
 import com.meneses.murocampus.data.remote.RetrofitClient
+import com.meneses.murocampus.ui.PantallaCrear
 import com.meneses.murocampus.ui.PantallaDetalle
 import com.meneses.murocampus.ui.PantallaLista
 import com.meneses.murocampus.ui.theme.MuroCampusTheme
@@ -37,12 +39,22 @@ class MainActivity : ComponentActivity() {
         setContent {
             MuroCampusTheme {
                 var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
-                BackHandler(idSeleccionado != null) {
+                var creando by rememberSaveable { mutableStateOf(false) }
+                BackHandler(creando) { creando = false }
+                BackHandler(idSeleccionado != null && !creando) {
                     vm.cerrarDetalle()
                     idSeleccionado = null
                 }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
+                    floatingActionButton = {
+                        if (idSeleccionado == null && !creando) {
+                            FloatingActionButton(onClick = {
+                                vm.limpiarPublicacion()
+                                creando = true
+                            }) { Text("+") }
+                        }
+                    },
                     topBar = {
                         TopAppBar(
                             title = { Text("MuroCampus") },
@@ -55,7 +67,9 @@ class MainActivity : ComponentActivity() {
                 ) { padding ->
                     val modifier = Modifier.fillMaxSize().padding(padding)
                     val id = idSeleccionado
-                    if (id == null) {
+                    if (creando) {
+                        PantallaCrear(vm, modifier)
+                    } else if (id == null) {
                         PantallaLista(vm, modifier) { seleccionado ->
                             vm.abrir(seleccionado)
                             idSeleccionado = seleccionado

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.meneses.murocampus.data.PostRepository
 import com.meneses.murocampus.data.mensajeDe
 import com.meneses.murocampus.model.Comentario
+import com.meneses.murocampus.model.NuevoPost
 import com.meneses.murocampus.model.Post
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,5 +64,23 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
     fun cerrarDetalle() {
         cargaDetalle?.cancel()
+    }
+
+    private val _publicacion = MutableStateFlow<UiState<Post>?>(null)
+    val publicacion = _publicacion.asStateFlow()
+
+    fun publicar(titulo: String, texto: String) {
+        if (titulo.isBlank() || texto.isBlank() || _publicacion.value == UiState.Cargando) return
+        _publicacion.value = UiState.Cargando
+        viewModelScope.launch {
+            _publicacion.value = repo.crear(NuevoPost(1, titulo, texto)).fold(
+                onSuccess = { UiState.Exito(it) },
+                onFailure = { UiState.Error(mensajeDe(it)) },
+            )
+        }
+    }
+
+    fun limpiarPublicacion() {
+        if (_publicacion.value != UiState.Cargando) _publicacion.value = null
     }
 }
