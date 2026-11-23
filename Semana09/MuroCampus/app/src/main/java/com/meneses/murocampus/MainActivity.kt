@@ -2,6 +2,7 @@ package com.meneses.murocampus
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,10 +13,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.meneses.murocampus.data.PostRepositoryRemote
 import com.meneses.murocampus.data.remote.RetrofitClient
+import com.meneses.murocampus.ui.PantallaDetalle
 import com.meneses.murocampus.ui.PantallaLista
 import com.meneses.murocampus.ui.theme.MuroCampusTheme
 import com.meneses.murocampus.viewmodel.PostsViewModel
@@ -30,6 +36,11 @@ class MainActivity : ComponentActivity() {
         val vm = ViewModelProvider(this, factory)[PostsViewModel::class.java]
         setContent {
             MuroCampusTheme {
+                var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
+                BackHandler(idSeleccionado != null) {
+                    vm.cerrarDetalle()
+                    idSeleccionado = null
+                }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
@@ -42,7 +53,16 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                 ) { padding ->
-                    PantallaLista(vm, Modifier.fillMaxSize().padding(padding))
+                    val modifier = Modifier.fillMaxSize().padding(padding)
+                    val id = idSeleccionado
+                    if (id == null) {
+                        PantallaLista(vm, modifier) { seleccionado ->
+                            vm.abrir(seleccionado)
+                            idSeleccionado = seleccionado
+                        }
+                    } else {
+                        PantallaDetalle(vm, id, modifier)
+                    }
                 }
             }
         }

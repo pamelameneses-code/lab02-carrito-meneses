@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meneses.murocampus.data.PostRepository
 import com.meneses.murocampus.data.mensajeDe
+import com.meneses.murocampus.model.Comentario
 import com.meneses.murocampus.model.Post
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+data class DetalleUi(val post: Post, val comentarios: List<Comentario>)
 
 class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _lista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
@@ -28,5 +31,28 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
                 onFailure = { UiState.Error(mensajeDe(it)) },
             )
         }
+    }
+
+    private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
+    val detalle = _detalle.asStateFlow()
+    private var cargaDetalle: Job? = null
+
+    fun abrir(id: Int) {
+        cargaDetalle?.cancel()
+        _detalle.value = UiState.Cargando
+        cargaDetalle = viewModelScope.launch {
+            val post = repo.detalle(id)
+            val comentarios = if (post.isSuccess) repo.comentarios(id) else null
+            val error = post.exceptionOrNull() ?: comentarios?.exceptionOrNull()
+            _detalle.value = if (error != null) {
+                UiState.Error(mensajeDe(error))
+            } else {
+                UiState.Exito(DetalleUi(post.getOrThrow(), requireNotNull(comentarios).getOrThrow()))
+            }
+        }
+    }
+
+    fun cerrarDetalle() {
+        cargaDetalle?.cancel()
     }
 }
