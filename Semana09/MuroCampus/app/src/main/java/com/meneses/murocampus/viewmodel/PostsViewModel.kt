@@ -16,6 +16,8 @@ data class DetalleUi(val post: Post, val comentarios: List<Comentario>)
 class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _lista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
     val lista = _lista.asStateFlow()
+    private val _usuarioFiltro = MutableStateFlow<Int?>(null)
+    val usuarioFiltro = _usuarioFiltro.asStateFlow()
     private var cargaLista: Job? = null
 
     init {
@@ -26,11 +28,18 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
         cargaLista?.cancel()
         cargaLista = viewModelScope.launch {
             _lista.value = UiState.Cargando
-            _lista.value = repo.listar().fold(
+            val usuario = _usuarioFiltro.value
+            val resultado = if (usuario == null) repo.listar() else repo.porUsuario(usuario)
+            _lista.value = resultado.fold(
                 onSuccess = { UiState.Exito(it) },
                 onFailure = { UiState.Error(mensajeDe(it)) },
             )
         }
+    }
+
+    fun filtrar(userId: Int?) {
+        _usuarioFiltro.value = userId
+        cargar()
     }
 
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
