@@ -11,7 +11,10 @@ import retrofit2.http.Query
 
 interface PostApi {
     @GET("posts")
-    suspend fun listar(): List<Post>
+    suspend fun listar(
+        @Query("_start") inicio: Int,
+        @Query("_limit") limite: Int,
+    ): List<Post>
 
     @GET("posts/{id}")
     suspend fun detalle(@Path("id") id: Int): Post

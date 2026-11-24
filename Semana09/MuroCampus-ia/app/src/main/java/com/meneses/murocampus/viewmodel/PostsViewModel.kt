@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+private const val TAMANO_PAGINA = 20
+
 data class DetalleUi(val post: Post, val comentarios: List<Comentario>)
 
 class PostsViewModel(private val repo: PostRepository) : ViewModel() {
@@ -28,6 +30,11 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
     private var cargaLista: Job? = null
 
+    private val _hayMas = MutableStateFlow(false)
+    val hayMas = _hayMas.asStateFlow()
+    private val _estadoPagina = MutableStateFlow<UiState<Nothing>?>(null)
+    val estadoPagina = _estadoPagina.asStateFlow()
+
     init {
         cargar()
     }
@@ -37,10 +44,34 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
         cargaLista = viewModelScope.launch {
             _lista.value = UiState.Cargando
             val usuario = _usuarioFiltro.value
-            val resultado = if (usuario == null) repo.listar() else repo.porUsuario(usuario)
+            val resultado = if (usuario == null) {
+                repo.listar(0, TAMANO_PAGINA)
+            } else {
+                repo.porUsuario(usuario)
+            }
             _lista.value = resultado.fold(
-                onSuccess = { UiState.Exito(it) },
+                onSuccess = {
+                    _hayMas.value = usuario == null && it.size == TAMANO_PAGINA
+                    UiState.Exito(it)
+                },
                 onFailure = { UiState.Error(mensajeDe(it)) },
+            )
+        }
+    }
+
+    fun cargarMas() {
+        val actuales = (_lista.value as? UiState.Exito)?.datos ?: return
+        if (!_hayMas.value || _estadoPagina.value == UiState.Cargando) return
+
+        _estadoPagina.value = UiState.Cargando
+        cargaLista = viewModelScope.launch {
+            repo.listar(actuales.size, TAMANO_PAGINA).fold(
+                onSuccess = { nuevos ->
+                    _lista.value = UiState.Exito(actuales + nuevos)
+                    _hayMas.value = nuevos.size == TAMANO_PAGINA
+                    _estadoPagina.value = null
+                },
+                onFailure = { _estadoPagina.value = UiState.Error(mensajeDe(it)) },
             )
         }
     }
