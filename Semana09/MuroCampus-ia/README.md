@@ -1,10 +1,18 @@
-# MuroCampus
+# MuroCampus-ia
 
 App Android en Kotlin y Jetpack Compose que consulta publicaciones y comentarios de JSONPlaceholder. Permite filtrar por usuario, enviar una publicación de prueba y reintentar una consulta cuando falla.
 
+## Mejoras de Semana 9
+
+- **Búsqueda por título.** Filtra las publicaciones descargadas, sin distinguir mayúsculas.
+- **Encabezado HTTP.** OkHttp añade `Accept: application/json` a cada petición.
+- **Paginación.** En **Todos**, la app descarga 20 publicaciones por página. Baja al final de la lista y toca **Cargar más**. Los filtros por usuario conservan su consulta independiente.
+
+El registro de asistencia está en [PROMPTS.md](PROMPTS.md).
+
 ## Ejecutar
 
-Abre la carpeta MuroCampus en Android Studio, sincroniza Gradle y ejecuta la app en un emulador o teléfono con internet.
+Abre la carpeta MuroCampus-ia en Android Studio, sincroniza Gradle y ejecuta la app en un emulador o teléfono con internet.
 
 ## Estructura de paquetes
 
@@ -42,7 +50,7 @@ flowchart TD
     API --> WEB["JSONPlaceholder"]
 ```
 
-## Capturas
+## Capturas de la app base
 
 | Lista | Detalle | Filtro | Crear | Error de conexión |
 | --- | --- | --- | --- | --- |
