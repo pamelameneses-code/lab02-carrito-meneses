@@ -1,7 +1,10 @@
 package com.meneses.avisoscampus.model
 
 enum class Origen(val texto: String) {
-    BOTON("Botón"), RECORDATORIO("Recordatorio"), MODO_AVION("Modo avión")
+    BOTON("Botón"),
+    RECORDATORIO("Recordatorio"),
+    MODO_AVION("Modo avión"),
+    CARGADOR("Cargador")
 }
 
 data class Aviso(

@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.core.content.ContextCompat
+import com.meneses.avisoscampus.receiver.CargadorReceiver
 import com.meneses.avisoscampus.receiver.ModoAvionReceiver
 import android.os.Build
 import android.provider.Settings
@@ -43,6 +44,20 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         } else {
             onDispose { }
         }
+    }
+    val escuchandoCargador by vm.escuchandoCargador.collectAsState()
+    DisposableEffect(contexto, escuchandoCargador) {
+        val receptor = if (escuchandoCargador) {
+            CargadorReceiver(vm::alCambiarCargador).also {
+                val filtro = IntentFilter(Intent.ACTION_POWER_CONNECTED).apply {
+                    addAction(Intent.ACTION_POWER_DISCONNECTED)
+                }
+                ContextCompat.registerReceiver(contexto, it, filtro, ContextCompat.RECEIVER_NOT_EXPORTED)
+            }
+        } else {
+            null
+        }
+        onDispose { receptor?.let { contexto.unregisterReceiver(it) } }
     }
     val permiso by vm.permiso.collectAsState()
     val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -110,6 +125,12 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     Text("Escuchar el modo avión", modifier = Modifier.weight(1f))
                     Switch(checked = escuchando, onCheckedChange = vm::cambiarEscucha)
+                }
+            }
+            Tarjeta("Cargador") {
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Text("Escuchar el cargador", modifier = Modifier.weight(1f))
+                    Switch(checked = escuchandoCargador, onCheckedChange = vm::cambiarEscuchaCargador)
                 }
             }
             val avisos by vm.avisos.collectAsState()

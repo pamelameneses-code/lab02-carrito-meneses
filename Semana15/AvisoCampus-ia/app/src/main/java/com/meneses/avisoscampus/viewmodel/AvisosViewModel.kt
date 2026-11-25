@@ -38,6 +38,21 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
         }
     }
 
+    private val _escuchandoCargador = MutableStateFlow(false)
+    val escuchandoCargador = _escuchandoCargador.asStateFlow()
+
+    fun cambiarEscuchaCargador(valor: Boolean) {
+        _escuchandoCargador.value = valor
+    }
+
+    fun alCambiarCargador(conectado: Boolean) {
+        viewModelScope.launch {
+            val estado = if (conectado) "Conectado" else "Desconectado"
+            val aviso = repo.registrar("Cargador", estado, Origen.CARGADOR)
+            _eventos.emit(aviso)
+        }
+    }
+
     private var trabajo: Job? = null
     private val _faltan = MutableStateFlow<Int?>(null)
     val faltan = _faltan.asStateFlow()
