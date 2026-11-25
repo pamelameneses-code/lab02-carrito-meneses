@@ -21,6 +21,11 @@ import com.meneses.avisoscampus.viewmodel.AvisosViewModel
 @Composable
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
+    LaunchedEffect(Unit) {
+        vm.eventos.collect { aviso ->
+            Notificador.mostrar(contexto, aviso)
+        }
+    }
     val permiso by vm.permiso.collectAsState()
     val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         vm.permisoRespondido(it)
@@ -55,7 +60,9 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     }
                 }) { Text("Permitir notificaciones") }
             }
-            Tarjeta("Avisos") {}
+            Tarjeta("Avisos") {
+                Button(onClick = vm::avisarAhora) { Text("Mostrar aviso") }
+            }
             Tarjeta("Recordatorio") {}
             Tarjeta("Receptor de anuncios") {}
             Tarjeta("Historial") {}
