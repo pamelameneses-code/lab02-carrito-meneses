@@ -18,6 +18,7 @@ import android.os.Build
 
 object Notificador {
     const val CANAL = "avisos"
+    private const val CANAL_URGENTES = "urgentes"
 
     fun tienePermiso(context: Context): Boolean =
         Build.VERSION.SDK_INT < 33 || ContextCompat.checkSelfPermission(
@@ -29,7 +30,8 @@ object Notificador {
         if (!tienePermiso(context)) return false
         val intent = Intent(context, MainActivity::class.java)
         val pendiente = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-        val notificacion = NotificationCompat.Builder(context, CANAL)
+        val canal = if (aviso.urgente) CANAL_URGENTES else CANAL
+        val notificacion = NotificationCompat.Builder(context, canal)
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
@@ -44,7 +46,9 @@ object Notificador {
     fun crearCanal(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val canal = NotificationChannel(CANAL, "Avisos", NotificationManager.IMPORTANCE_DEFAULT)
-            context.getSystemService(NotificationManager::class.java).createNotificationChannel(canal)
+            val urgente = NotificationChannel(CANAL_URGENTES, "Urgentes", NotificationManager.IMPORTANCE_HIGH)
+            context.getSystemService(NotificationManager::class.java)
+                .createNotificationChannels(listOf(canal, urgente))
         }
     }
 }
