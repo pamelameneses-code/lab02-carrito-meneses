@@ -1,6 +1,9 @@
 package com.meneses.avisoscampus.notificacion
 
 import android.Manifest
+import android.app.PendingIntent
+import android.content.Intent
+import com.meneses.avisoscampus.MainActivity
 import android.annotation.SuppressLint
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -24,11 +27,14 @@ object Notificador {
     @SuppressLint("MissingPermission")
     fun mostrar(context: Context, aviso: Aviso): Boolean {
         if (!tienePermiso(context)) return false
+        val intent = Intent(context, MainActivity::class.java)
+        val pendiente = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         val notificacion = NotificationCompat.Builder(context, CANAL)
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendiente)
             .setAutoCancel(true)
             .build()
         NotificationManagerCompat.from(context).notify(aviso.id, notificacion)
