@@ -6,6 +6,7 @@ import android.content.IntentFilter
 import androidx.core.content.ContextCompat
 import com.meneses.avisoscampus.receiver.ModoAvionReceiver
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -27,7 +28,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
-            Notificador.mostrar(contexto, aviso)
+            if (!Notificador.mostrar(contexto, aviso)) vm.noSePudoMostrar()
         }
     }
     val escuchando by vm.escuchandoAvion.collectAsState()
@@ -76,6 +77,19 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                         lanzador.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
                 }) { Text("Permitir notificaciones") }
+            }
+            val mensaje by vm.mensaje.collectAsState()
+            mensaje?.let { error ->
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)) {
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text(error, color = MaterialTheme.colorScheme.onErrorContainer)
+                        OutlinedButton(onClick = {
+                            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+                            contexto.startActivity(intent)
+                        }) { Text("Abrir ajustes") }
+                    }
+                }
             }
             Tarjeta("Avisos") {
                 Button(onClick = vm::avisarAhora) { Text("Mostrar aviso") }
