@@ -1,6 +1,10 @@
 package com.meneses.avisoscampus.ui
 
 import android.Manifest
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.core.content.ContextCompat
+import com.meneses.avisoscampus.receiver.ModoAvionReceiver
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,6 +28,19 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
             Notificador.mostrar(contexto, aviso)
+        }
+    }
+    val escuchando by vm.escuchandoAvion.collectAsState()
+    DisposableEffect(escuchando) {
+        if (escuchando) {
+            val receptor = ModoAvionReceiver(vm::alCambiarModoAvion)
+            ContextCompat.registerReceiver(
+                contexto, receptor, IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            onDispose { contexto.unregisterReceiver(receptor) }
+        } else {
+            onDispose { }
         }
     }
     val permiso by vm.permiso.collectAsState()
@@ -75,7 +92,12 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }
                 faltan?.let { Text("Faltan ${it}s") }
             }
-            Tarjeta("Receptor de anuncios") {}
+            Tarjeta("Receptor de anuncios") {
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Text("Escuchar el modo avión", modifier = Modifier.weight(1f))
+                    Switch(checked = escuchando, onCheckedChange = vm::cambiarEscucha)
+                }
+            }
             Tarjeta("Historial") {}
         }
     }
