@@ -98,7 +98,8 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     Switch(checked = escuchando, onCheckedChange = vm::cambiarEscucha)
                 }
             }
-            Tarjeta("Historial") {}
+            val avisos by vm.avisos.collectAsState()
+            HistorialAvisos(avisos)
         }
     }
 }
