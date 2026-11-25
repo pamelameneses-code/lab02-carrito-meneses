@@ -63,7 +63,18 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             Tarjeta("Avisos") {
                 Button(onClick = vm::avisarAhora) { Text("Mostrar aviso") }
             }
-            Tarjeta("Recordatorio") {}
+            val faltan by vm.faltan.collectAsState()
+            Tarjeta("Recordatorio") {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { vm.recordarEn() }, enabled = faltan == null) {
+                        Text("Recordar en 10 s")
+                    }
+                    OutlinedButton(onClick = vm::cancelarRecordatorio, enabled = faltan != null) {
+                        Text("Cancelar")
+                    }
+                }
+                faltan?.let { Text("Faltan ${it}s") }
+            }
             Tarjeta("Receptor de anuncios") {}
             Tarjeta("Historial") {}
         }
